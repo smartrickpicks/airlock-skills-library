@@ -1,0 +1,15 @@
+{
+  "name": "platform-defaults-skills",
+  "version": "0.1.0",
+  "description": "Default skills, components, and templates that ship with every Airlock instance",
+  "author": "Airlock",
+  "vertical": "general",
+  "modules_required": [],
+  "price": "free",
+  "contents": {
+    "skills": 0,
+    "playbooks": 0,
+    "documents": 0,
+    "components": 0
+  }
+}
