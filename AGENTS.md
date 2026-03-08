@@ -24,3 +24,11 @@ This repo is structured as a platform-defaults pack. Skills, components, and tem
 
 ## Vocabulary
 See airlock-docs for the canonical glossary. Key terms: Pack, Controller, Maverick, Builder.
+
+## Ingestion
+Local reference files are available at `~/Desktop/Airlock/ingestion/`:
+- `documents/` — Source documents for extraction, analysis, or spec drafting
+- `research/` — External research, competitor analysis, market data
+- `imports/` — Files being imported into the platform (contracts, templates, datasets)
+
+All agents across the constellation can read from this shared ingestion folder via the `airlock-ingestion` MCP server.
