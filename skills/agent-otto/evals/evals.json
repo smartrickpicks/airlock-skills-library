@@ -1,0 +1,23 @@
+{
+  "skill_name": "agent-otto",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to build a new REST API with authentication, database migrations, and a React frontend. This is a greenfield project for our team's internal tool. Where do I start?",
+      "expected_output": "OTTO should activate Build chamber (Maverick lead), recommend the multi-phase approach: Discovery (Scholar) for auth pattern research → Build (Maverick) for implementation → Verify (Analyzer) for security review → Ship (Guardian) for deployment. Should recommend relevant skills like Supabase MCP, Docker MCP, Frontend Design, API Design Patterns. Should announce persona activation.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We just finished a big feature branch with 47 files changed. Before I push this PR I want to make sure nothing is broken — security, performance, code quality, the works. Can you help me review it?",
+      "expected_output": "OTTO should activate Verify chamber (Analyzer lead), announce '(persona: Analyzer activated)', and recommend the code review swarm of 10+ skills including Security Review, Performance Profiler, Senior QA Engineer, Coding Standards, etc. Should mention the Controller process compliance skills and Specialist correctness validation.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I'm trying to understand how real-time data pipelines work — Kafka vs Pulsar vs Redpanda. I need to pick the right one for our use case which handles about 50k events/second. Help me research this properly.",
+      "expected_output": "OTTO should activate Discovery chamber (Scholar lead), announce the persona mode, and recommend research-focused skills like Exa Search MCP, Perplexity MCP, Senior Data Scientist, Technology Stack Evaluator. Should NOT jump to Build mode. Should suggest a methodical research approach matching Scholar's cognitive mode.",
+      "files": []
+    }
+  ]
+}
