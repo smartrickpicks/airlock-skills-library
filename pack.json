@@ -6,10 +6,555 @@
   "vertical": "general",
   "modules_required": [],
   "price": "free",
+  "license": "proprietary",
+  "tags": [
+    "platform",
+    "defaults",
+    "contracts",
+    "crm",
+    "triage",
+    "calendar",
+    "documents",
+    "otto",
+    "extraction",
+    "playbooks"
+  ],
   "contents": {
-    "skills": [],
-    "playbooks": [],
-    "documents": [],
-    "components": []
-  }
+    "skills": [
+      "skills/vault-lifecycle.yaml",
+      "skills/entity-lookup.yaml",
+      "skills/extraction-run.yaml",
+      "skills/gate-check.yaml",
+      "skills/playbook-execute.yaml",
+      "skills/otto-chat.yaml",
+      "skills/field-suggestion.yaml",
+      "skills/confidence-explain.yaml",
+      "skills/flag-for-gatekeeper.yaml"
+    ],
+    "playbooks": [
+      "playbooks/otto-research.yaml",
+      "playbooks/new-workspace.yaml",
+      "playbooks/vault-lifecycle.yaml",
+      "playbooks/agent-task-templates.yaml"
+    ],
+    "documents": [
+      "documents/glossary.mdx",
+      "documents/shell-spec.md",
+      "documents/triptych-spec.md",
+      "documents/contracts-spec.md",
+      "documents/crm-spec.md",
+      "documents/triage-spec.md",
+      "documents/calendar-spec.md",
+      "documents/document-suite-spec.md",
+      "documents/vault-hierarchy-spec.md",
+      "documents/roles-spec.md",
+      "documents/patch-workflow-spec.md",
+      "documents/record-inspector-spec.md",
+      "documents/ai-agent-spec.md",
+      "documents/workflow-engine-spec.md",
+      "documents/dispatch-spec.md",
+      "documents/security-spec.md",
+      "documents/tech-stack-spec.md"
+    ],
+    "components": [
+      "components/atoms/Badge.tsx",
+      "components/atoms/Button.tsx",
+      "components/atoms/ChamberLabel.tsx",
+      "components/atoms/ConfidenceBadge.tsx",
+      "components/atoms/EmptyState.tsx",
+      "components/atoms/GateDot.tsx",
+      "components/atoms/Icon.tsx",
+      "components/atoms/ProgressBar.tsx",
+      "components/atoms/SearchInput.tsx",
+      "components/atoms/StatusDot.tsx",
+      "components/atoms/Toast.tsx",
+      "components/atoms/Tooltip.tsx",
+      "components/molecules/CreateVaultModal.tsx",
+      "components/molecules/DAGNode.tsx",
+      "components/molecules/DealCard.tsx",
+      "components/molecules/FieldCard.tsx",
+      "components/molecules/FilterBar.tsx",
+      "components/molecules/GateCard.tsx",
+      "components/molecules/Modal.tsx",
+      "components/molecules/SLATimer.tsx",
+      "components/molecules/TaskCard.tsx",
+      "components/molecules/VaultItem.tsx",
+      "components/organisms/ActivityFeed.tsx",
+      "components/organisms/CommandPalette.tsx",
+      "components/organisms/ControlPanel.tsx",
+      "components/organisms/GatePanel.tsx",
+      "components/organisms/OttoChat.tsx",
+      "components/organisms/PatchEditor.tsx",
+      "components/organisms/PlaybookDAG.tsx",
+      "components/organisms/RecordInspector.tsx",
+      "components/organisms/SignalPanel.tsx",
+      "components/organisms/TasksKanban.tsx",
+      "components/templates/TriptychLayout.tsx",
+      "components/templates/ShellLayout.tsx",
+      "components/templates/WorkflowBuilder.tsx"
+    ]
+  },
+  "skills": [
+    {
+      "id": "vault-lifecycle",
+      "name": "Vault Lifecycle",
+      "path": "skills/vault-lifecycle.yaml",
+      "category": "contracts",
+      "description": "Create, advance, and archive vaults through chambers (Discover > Build > Review > Ship)"
+    },
+    {
+      "id": "entity-lookup",
+      "name": "Entity Lookup",
+      "path": "skills/entity-lookup.yaml",
+      "category": "crm",
+      "description": "Search and resolve entities across vaults with fuzzy matching and deduplication"
+    },
+    {
+      "id": "extraction-run",
+      "name": "Extraction Run",
+      "path": "skills/extraction-run.yaml",
+      "category": "contracts",
+      "description": "Run AI extraction on uploaded documents to populate vault fields with confidence scores"
+    },
+    {
+      "id": "gate-check",
+      "name": "Gate Check",
+      "path": "skills/gate-check.yaml",
+      "category": "contracts",
+      "description": "Evaluate gate requirements for chamber advancement (quality, approval, verification, convergence, decision)"
+    },
+    {
+      "id": "playbook-execute",
+      "name": "Playbook Execute",
+      "path": "skills/playbook-execute.yaml",
+      "category": "workflow",
+      "description": "Run DAG-based playbook workflows with step tracking and conditional branching"
+    },
+    {
+      "id": "otto-chat",
+      "name": "Otto Chat",
+      "path": "skills/otto-chat.yaml",
+      "category": "ai-agent",
+      "description": "Interact with Otto AI agent for contextual assistance, research, and task execution"
+    },
+    {
+      "id": "field-suggestion",
+      "name": "Field Suggestion",
+      "path": "skills/field-suggestion.yaml",
+      "category": "contracts",
+      "description": "AI-suggested field values from document extraction with inline accept/reject controls"
+    },
+    {
+      "id": "confidence-explain",
+      "name": "Confidence Explain",
+      "path": "skills/confidence-explain.yaml",
+      "category": "contracts",
+      "description": "Explain extraction confidence scores with source highlighting and evidence trails"
+    },
+    {
+      "id": "flag-for-gatekeeper",
+      "name": "Flag for Gatekeeper",
+      "path": "skills/flag-for-gatekeeper.yaml",
+      "category": "contracts",
+      "description": "Flag vault items for review chamber attention with priority and context annotations"
+    }
+  ],
+  "playbooks": [
+    {
+      "id": "otto-research",
+      "name": "Otto Research",
+      "path": "playbooks/otto-research.yaml",
+      "category": "prospecting",
+      "description": "AI-driven prospecting research workflow — gather intel on targets, enrich CRM records, and generate outreach briefs"
+    },
+    {
+      "id": "new-workspace",
+      "name": "New Workspace",
+      "path": "playbooks/new-workspace.yaml",
+      "category": "onboarding",
+      "description": "Guided onboarding flow for new workspace setup — modules, roles, integrations, and first vault creation"
+    },
+    {
+      "id": "vault-lifecycle",
+      "name": "Vault Lifecycle",
+      "path": "playbooks/vault-lifecycle.yaml",
+      "category": "contracts",
+      "description": "End-to-end contract vault workflow from Discover through Ship with gate checkpoints and role handoffs"
+    },
+    {
+      "id": "agent-task-templates",
+      "name": "Agent Task Templates",
+      "path": "playbooks/agent-task-templates.yaml",
+      "category": "automation",
+      "description": "Pre-built agent task templates for common operations — extraction, enrichment, notification, and approval routing"
+    }
+  ],
+  "documents": [
+    {
+      "id": "glossary",
+      "name": "Glossary",
+      "path": "documents/glossary.mdx",
+      "category": "concepts",
+      "description": "Canonical vocabulary and term definitions — Vault, Chamber, Gate, Module, Triptych, and all domain concepts"
+    },
+    {
+      "id": "shell-spec",
+      "name": "Shell Spec",
+      "path": "documents/shell-spec.md",
+      "category": "specs",
+      "description": "Application shell architecture — module bar, sidebar, toolbar, and navigation structure"
+    },
+    {
+      "id": "triptych-spec",
+      "name": "Triptych Spec",
+      "path": "documents/triptych-spec.md",
+      "category": "specs",
+      "description": "Three-panel layout specification — Signal, Orchestrate, and Control panel behaviors and states"
+    },
+    {
+      "id": "contracts-spec",
+      "name": "Contracts Spec",
+      "path": "documents/contracts-spec.md",
+      "category": "specs",
+      "description": "Contracts module specification — vault hierarchy, chamber progression, extraction, and patch workflow"
+    },
+    {
+      "id": "crm-spec",
+      "name": "CRM Spec",
+      "path": "documents/crm-spec.md",
+      "category": "specs",
+      "description": "CRM module specification — accounts, leads, deals, pipeline board, and entity resolution"
+    },
+    {
+      "id": "triage-spec",
+      "name": "Triage Spec",
+      "path": "documents/triage-spec.md",
+      "category": "specs",
+      "description": "Triage module specification — Kanban board, table view, agenda, and task lifecycle"
+    },
+    {
+      "id": "calendar-spec",
+      "name": "Calendar Spec",
+      "path": "documents/calendar-spec.md",
+      "category": "specs",
+      "description": "Calendar module specification — month grid, agenda list, event creation, and meeting intelligence"
+    },
+    {
+      "id": "document-suite-spec",
+      "name": "Document Suite Spec",
+      "path": "documents/document-suite-spec.md",
+      "category": "specs",
+      "description": "Document suite specification — multi-format support, upload, preview, and TipTap editor"
+    },
+    {
+      "id": "vault-hierarchy-spec",
+      "name": "Vault Hierarchy Spec",
+      "path": "documents/vault-hierarchy-spec.md",
+      "category": "specs",
+      "description": "Vault hierarchy specification — workspace > module > vault > chamber > gate data model"
+    },
+    {
+      "id": "roles-spec",
+      "name": "Roles Spec",
+      "path": "documents/roles-spec.md",
+      "category": "specs",
+      "description": "Roles and permissions specification — Builder, Gatekeeper, Owner taxonomy and RBAC enforcement"
+    },
+    {
+      "id": "patch-workflow-spec",
+      "name": "Patch Workflow Spec",
+      "path": "documents/patch-workflow-spec.md",
+      "category": "specs",
+      "description": "Patch workflow specification — draft, submit, approve, reject cycle with SLA timers and approval chains"
+    },
+    {
+      "id": "record-inspector-spec",
+      "name": "Record Inspector Spec",
+      "path": "documents/record-inspector-spec.md",
+      "category": "specs",
+      "description": "Record inspector specification — field cards, document viewer, entity resolution, and heatmap mode"
+    },
+    {
+      "id": "ai-agent-spec",
+      "name": "AI Agent Spec",
+      "path": "documents/ai-agent-spec.md",
+      "category": "specs",
+      "description": "Otto AI agent specification — runtime, context panel, enrichment sources, and streaming protocol"
+    },
+    {
+      "id": "workflow-engine-spec",
+      "name": "Workflow Engine Spec",
+      "path": "documents/workflow-engine-spec.md",
+      "category": "specs",
+      "description": "Workflow engine specification — DAG builder, node catalog, execution runtime, and playbook integration"
+    },
+    {
+      "id": "dispatch-spec",
+      "name": "Dispatch Spec",
+      "path": "documents/dispatch-spec.md",
+      "category": "specs",
+      "description": "Dispatch homepage specification — signal-dominant Triptych at workspace level with module signal aggregation"
+    },
+    {
+      "id": "security-spec",
+      "name": "Security Spec",
+      "path": "documents/security-spec.md",
+      "category": "specs",
+      "description": "Security specification — auth, RLS, audit trail, data cipher model, and LLM safety policy"
+    },
+    {
+      "id": "tech-stack-spec",
+      "name": "Tech Stack Spec",
+      "path": "documents/tech-stack-spec.md",
+      "category": "specs",
+      "description": "Locked technology stack — Next.js 14, FastAPI, PostgreSQL 16, Redis 7, and infrastructure choices"
+    }
+  ],
+  "components": [
+    {
+      "id": "badge",
+      "name": "Badge",
+      "path": "components/atoms/Badge.tsx",
+      "category": "atom",
+      "description": "Generic status badge with variant styling for labels, counts, and tags"
+    },
+    {
+      "id": "button",
+      "name": "Button",
+      "path": "components/atoms/Button.tsx",
+      "category": "atom",
+      "description": "Primary button component with size, variant, and loading state support"
+    },
+    {
+      "id": "chamber-label",
+      "name": "Chamber Label",
+      "path": "components/atoms/ChamberLabel.tsx",
+      "category": "atom",
+      "description": "Color-coded chamber name label (Discover=red, Build=yellow, Review=purple, Ship=green)"
+    },
+    {
+      "id": "confidence-badge",
+      "name": "Confidence Badge",
+      "path": "components/atoms/ConfidenceBadge.tsx",
+      "category": "atom",
+      "description": "Extraction confidence score indicator with color-coded thresholds"
+    },
+    {
+      "id": "empty-state",
+      "name": "Empty State",
+      "path": "components/atoms/EmptyState.tsx",
+      "category": "atom",
+      "description": "Placeholder for empty lists and views with icon, title, and action slot"
+    },
+    {
+      "id": "gate-dot",
+      "name": "Gate Dot",
+      "path": "components/atoms/GateDot.tsx",
+      "category": "atom",
+      "description": "Visual gate status indicator dot (passed, failed, pending, skipped)"
+    },
+    {
+      "id": "icon",
+      "name": "Icon",
+      "path": "components/atoms/Icon.tsx",
+      "category": "atom",
+      "description": "Icon wrapper component with consistent sizing and color token integration"
+    },
+    {
+      "id": "progress-bar",
+      "name": "Progress Bar",
+      "path": "components/atoms/ProgressBar.tsx",
+      "category": "atom",
+      "description": "Horizontal progress indicator with percentage and label support"
+    },
+    {
+      "id": "search-input",
+      "name": "Search Input",
+      "path": "components/atoms/SearchInput.tsx",
+      "category": "atom",
+      "description": "Search field with icon, debounce, and clear button"
+    },
+    {
+      "id": "status-dot",
+      "name": "Status Dot",
+      "path": "components/atoms/StatusDot.tsx",
+      "category": "atom",
+      "description": "Presence and status indicator dot (online, away, busy, offline)"
+    },
+    {
+      "id": "toast",
+      "name": "Toast",
+      "path": "components/atoms/Toast.tsx",
+      "category": "atom",
+      "description": "Notification toast with success, error, warning, and info variants"
+    },
+    {
+      "id": "tooltip",
+      "name": "Tooltip",
+      "path": "components/atoms/Tooltip.tsx",
+      "category": "atom",
+      "description": "Hover tooltip with configurable placement and delay"
+    },
+    {
+      "id": "create-vault-modal",
+      "name": "Create Vault Modal",
+      "path": "components/molecules/CreateVaultModal.tsx",
+      "category": "molecule",
+      "description": "Modal form for creating new vaults with module selection, title, and contract type"
+    },
+    {
+      "id": "dag-node",
+      "name": "DAG Node",
+      "path": "components/molecules/DAGNode.tsx",
+      "category": "molecule",
+      "description": "Individual node in a DAG workflow visualization with status and connection ports"
+    },
+    {
+      "id": "deal-card",
+      "name": "Deal Card",
+      "path": "components/molecules/DealCard.tsx",
+      "category": "molecule",
+      "description": "CRM deal summary card with value, stage, and assignee for pipeline boards"
+    },
+    {
+      "id": "field-card",
+      "name": "Field Card",
+      "path": "components/molecules/FieldCard.tsx",
+      "category": "molecule",
+      "description": "Extracted field display with value, confidence score, source highlight, and edit controls"
+    },
+    {
+      "id": "filter-bar",
+      "name": "Filter Bar",
+      "path": "components/molecules/FilterBar.tsx",
+      "category": "molecule",
+      "description": "Composable filter bar with dropdown filters, search, and active filter pills"
+    },
+    {
+      "id": "gate-card",
+      "name": "Gate Card",
+      "path": "components/molecules/GateCard.tsx",
+      "category": "molecule",
+      "description": "Gate checkpoint card showing requirements, status, and pass/fail actions"
+    },
+    {
+      "id": "modal",
+      "name": "Modal",
+      "path": "components/molecules/Modal.tsx",
+      "category": "molecule",
+      "description": "Base modal dialog with backdrop, close button, and content slot"
+    },
+    {
+      "id": "sla-timer",
+      "name": "SLA Timer",
+      "path": "components/molecules/SLATimer.tsx",
+      "category": "molecule",
+      "description": "Countdown timer for SLA deadlines with warning and overdue color states"
+    },
+    {
+      "id": "task-card",
+      "name": "Task Card",
+      "path": "components/molecules/TaskCard.tsx",
+      "category": "molecule",
+      "description": "Triage task card with title, assignee, priority, due date, and status for Kanban boards"
+    },
+    {
+      "id": "vault-item",
+      "name": "Vault Item",
+      "path": "components/molecules/VaultItem.tsx",
+      "category": "molecule",
+      "description": "Sidebar vault list item with title, chamber indicator, and unread count"
+    },
+    {
+      "id": "activity-feed",
+      "name": "Activity Feed",
+      "path": "components/organisms/ActivityFeed.tsx",
+      "category": "organism",
+      "description": "Chronological event feed showing vault actions, patches, gate transitions, and user activity"
+    },
+    {
+      "id": "command-palette",
+      "name": "Command Palette",
+      "path": "components/organisms/CommandPalette.tsx",
+      "category": "organism",
+      "description": "Global command palette (Cmd+K) for quick navigation, search, and action execution"
+    },
+    {
+      "id": "control-panel",
+      "name": "Control Panel",
+      "path": "components/organisms/ControlPanel.tsx",
+      "category": "organism",
+      "description": "Right panel of the Triptych — metadata, audit trail, permissions, and vault settings"
+    },
+    {
+      "id": "gate-panel",
+      "name": "Gate Panel",
+      "path": "components/organisms/GatePanel.tsx",
+      "category": "organism",
+      "description": "Gate evaluation panel with requirement checklist, approval actions, and override controls"
+    },
+    {
+      "id": "otto-chat",
+      "name": "Otto Chat",
+      "path": "components/organisms/OttoChat.tsx",
+      "category": "organism",
+      "description": "Otto AI conversational interface with streaming responses, context awareness, and action suggestions"
+    },
+    {
+      "id": "patch-editor",
+      "name": "Patch Editor",
+      "path": "components/organisms/PatchEditor.tsx",
+      "category": "organism",
+      "description": "Diff-based field editor for creating and reviewing patches with before/after comparison"
+    },
+    {
+      "id": "playbook-dag",
+      "name": "Playbook DAG",
+      "path": "components/organisms/PlaybookDAG.tsx",
+      "category": "organism",
+      "description": "Visual DAG canvas for playbook workflow execution with step progress and branching"
+    },
+    {
+      "id": "record-inspector",
+      "name": "Record Inspector",
+      "path": "components/organisms/RecordInspector.tsx",
+      "category": "organism",
+      "description": "Deep-dive record view with field cards, document viewer, entity resolution, and extraction results"
+    },
+    {
+      "id": "signal-panel",
+      "name": "Signal Panel",
+      "path": "components/organisms/SignalPanel.tsx",
+      "category": "organism",
+      "description": "Left panel of the Triptych — aggregated signals, notifications, and module-level alerts"
+    },
+    {
+      "id": "tasks-kanban",
+      "name": "Tasks Kanban",
+      "path": "components/organisms/TasksKanban.tsx",
+      "category": "organism",
+      "description": "Drag-and-drop Kanban board for Triage module with swimlanes and WIP limits"
+    },
+    {
+      "id": "triptych-layout",
+      "name": "Triptych Layout",
+      "path": "components/templates/TriptychLayout.tsx",
+      "category": "template",
+      "description": "Three-panel responsive layout template — Signal | Orchestrate | Control with resizable dividers"
+    },
+    {
+      "id": "shell-layout",
+      "name": "Shell Layout",
+      "path": "components/templates/ShellLayout.tsx",
+      "category": "template",
+      "description": "Application shell template with module bar, sidebar, toolbar, and content area"
+    },
+    {
+      "id": "workflow-builder",
+      "name": "Workflow Builder",
+      "path": "components/templates/WorkflowBuilder.tsx",
+      "category": "template",
+      "description": "Visual workflow DAG builder template with node palette, canvas, and configuration sidebar"
+    }
+  ]
 }
