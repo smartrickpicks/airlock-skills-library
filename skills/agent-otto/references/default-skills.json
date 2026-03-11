@@ -1,0 +1,174 @@
+{
+  "version": "2.0",
+  "generated": "2026-03-10",
+  "description": "OTTO default skill set — 99 curated skills mapped to personas and chambers",
+  "totalSkills": 99,
+  "hardGates": [
+    {
+      "skill": "brainstorming",
+      "rule": "No implementation without design approval",
+      "chamber": "discovery",
+      "blocks": "build"
+    },
+    {
+      "skill": "test-driven-development",
+      "rule": "No production code without failing test first",
+      "chamber": "build",
+      "blocks": "verify"
+    },
+    {
+      "skill": "verification-before-completion",
+      "rule": "No completion claims without fresh verification evidence",
+      "chamber": "verify",
+      "blocks": "ship"
+    }
+  ],
+  "chambers": {
+    "discovery": {
+      "emoji": "🔬",
+      "lead": "Scholar",
+      "support": ["Strategist", "Venturer", "Analyzer"],
+      "skills": [
+        {"name": "brainstorming", "source": "superpowers", "personas": ["Scholar", "Venturer"], "hardGate": true, "trigger": "Any creative or design work"},
+        {"name": "writing-plans", "source": "superpowers", "personas": ["Strategist", "Operator"], "trigger": "After design approval, before coding"},
+        {"name": "market-research", "source": "everything-claude-code", "personas": ["Scholar", "Strategist"], "trigger": "Competitive analysis, market sizing"},
+        {"name": "codebase-onboarding", "source": "claude-skills", "personas": ["Scholar", "Strategist"], "trigger": "New project or unfamiliar codebase"},
+        {"name": "ux-researcher-designer", "source": "claude-skills", "personas": ["Scholar", "Artisan"], "trigger": "User personas, journey maps, usability testing"},
+        {"name": "scenario-war-room", "source": "claude-skills", "personas": ["Strategist", "Analyzer"], "trigger": "Multi-scenario stress testing"},
+        {"name": "strategic-alignment-engine", "source": "claude-skills", "personas": ["Strategist", "Captain"], "trigger": "Strategy cascade, misalignment detection"},
+        {"name": "strategic-compact", "source": "everything-claude-code", "personas": ["Strategist", "Guardian"], "trigger": "Context compaction, session persistence"},
+        {"name": "search-first", "source": "everything-claude-code", "personas": ["Scholar", "Operator"], "trigger": "Research existing solutions before implementing"},
+        {"name": "agent-designer", "source": "claude-skills", "personas": ["Strategist", "Scholar"], "trigger": "Multi-agent system architecture"},
+        {"name": "agent-workflow-designer", "source": "claude-skills", "personas": ["Strategist", "Captain"], "trigger": "Production orchestration patterns"}
+      ]
+    },
+    "build": {
+      "emoji": "⚡",
+      "lead": "Maverick",
+      "support": ["Artisan", "Operator", "Promoter"],
+      "skills": {
+        "engineering": [
+          {"name": "coding-standards", "source": "everything-claude-code", "personas": ["Operator", "Artisan"], "trigger": "Always active during Build"},
+          {"name": "frontend-design", "source": "anthropic", "personas": ["Artisan", "Maverick"], "trigger": "Production-grade UI, bold design decisions"},
+          {"name": "senior-frontend", "source": "claude-skills", "personas": ["Artisan", "Operator"], "trigger": "React/Next.js/TypeScript/Tailwind"},
+          {"name": "frontend-development-patterns", "source": "everything-claude-code", "personas": ["Artisan", "Operator"], "trigger": "React, Next.js, performant UI"},
+          {"name": "ui-ux-pro-max", "source": "community", "personas": ["Artisan", "Maverick"], "trigger": "Design database search — styles, palettes, fonts, UX guidelines"},
+          {"name": "ui-design-system", "source": "claude-skills", "personas": ["Artisan", "Individualist"], "trigger": "Design tokens, component systems"},
+          {"name": "animation-patterns", "source": "airlock", "personas": ["Artisan", "Maverick"], "trigger": "Motion design for dynamic frontends"},
+          {"name": "web-artifacts-builder", "source": "anthropic", "personas": ["Artisan", "Maverick"], "trigger": "Complex React/Tailwind/shadcn artifacts"},
+          {"name": "landing-page-generator", "source": "claude-skills", "personas": ["Artisan", "Promoter"], "trigger": "High-converting landing pages"},
+          {"name": "frontend-slides", "source": "everything-claude-code", "personas": ["Artisan", "Venturer"], "trigger": "Zero-dependency HTML presentations"},
+          {"name": "web-asset-generator", "source": "community", "personas": ["Artisan", "Operator"], "trigger": "Favicons, app icons, social images"},
+          {"name": "test-driven-development", "source": "superpowers", "personas": ["Guardian", "Operator"], "hardGate": true, "trigger": "Before writing production code"},
+          {"name": "python-development-patterns", "source": "everything-claude-code", "personas": ["Operator", "Artisan"], "trigger": "Idiomatic Python"},
+          {"name": "python-testing-patterns", "source": "everything-claude-code", "personas": ["Guardian", "Operator"], "trigger": "pytest, TDD methodology"},
+          {"name": "docker-patterns", "source": "everything-claude-code", "personas": ["Operator", "Guardian"], "trigger": "Docker/Compose best practices"},
+          {"name": "deployment-patterns", "source": "everything-claude-code", "personas": ["Operator", "Guardian"], "trigger": "CI/CD and production deployment"},
+          {"name": "postgresql-patterns", "source": "everything-claude-code", "personas": ["Operator", "Artisan"], "trigger": "PostgreSQL best practices"},
+          {"name": "ralphinho-rfc-pipeline", "source": "everything-claude-code", "personas": ["Strategist", "Operator"], "trigger": "Features too large for single agent pass"},
+          {"name": "ios-simulator", "source": "community", "personas": ["Artisan", "Operator"], "trigger": "iOS app building and testing"},
+          {"name": "liquid-glass-design", "source": "everything-claude-code", "personas": ["Artisan", "Maverick"], "trigger": "Apple Liquid Glass for SwiftUI/UIKit"},
+          {"name": "foundation-models-on-device", "source": "everything-claude-code", "personas": ["Scholar", "Artisan"], "trigger": "Apple on-device LLM integration"}
+        ],
+        "content": [
+          {"name": "content-engine", "source": "everything-claude-code", "personas": ["Promoter", "Artisan"], "trigger": "Platform-native content adaptation"},
+          {"name": "content-strategy", "source": "claude-skills", "personas": ["Strategist", "Promoter"], "trigger": "Content planning for traffic and authority"},
+          {"name": "content-production", "source": "claude-skills", "personas": ["Artisan", "Promoter"], "trigger": "Zero-to-finished content that ranks"},
+          {"name": "content-humanizer", "source": "claude-skills", "personas": ["Artisan", "Collaborator"], "trigger": "Transform AI-generated to authentic voice"},
+          {"name": "copywriting", "source": "claude-skills", "personas": ["Persuader", "Promoter"], "trigger": "Conversion copy that drives action"},
+          {"name": "cold-email-outreach", "source": "claude-skills", "personas": ["Persuader", "Venturer"], "trigger": "B2B cold email sequences"},
+          {"name": "email-sequence-design", "source": "claude-skills", "personas": ["Persuader", "Operator"], "trigger": "Email automation and nurture sequences"},
+          {"name": "social-media-manager", "source": "claude-skills", "personas": ["Promoter", "Collaborator"], "trigger": "Sustainable social presence"},
+          {"name": "social-content", "source": "claude-skills", "personas": ["Promoter", "Artisan"], "trigger": "Platform-specific engagement content"},
+          {"name": "launch-strategy", "source": "claude-skills", "personas": ["Captain", "Promoter"], "trigger": "Product launches and feature announcements"},
+          {"name": "marketing-context", "source": "claude-skills", "personas": ["Strategist", "Promoter"], "trigger": "Foundational positioning and messaging"},
+          {"name": "cmo-advisor", "source": "claude-skills", "personas": ["Strategist", "Captain"], "trigger": "Brand positioning, growth models"},
+          {"name": "paid-ads", "source": "claude-skills", "personas": ["Operator", "Promoter"], "trigger": "Performance marketing campaigns"},
+          {"name": "seo-audit", "source": "claude-skills", "personas": ["Scholar", "Operator"], "trigger": "Organic search optimization"},
+          {"name": "ai-seo", "source": "claude-skills", "personas": ["Scholar", "Maverick"], "trigger": "Generative engine optimization for AI citation"},
+          {"name": "ad-creative", "source": "claude-skills", "personas": ["Artisan", "Persuader"], "trigger": "Performance ad copy at scale"},
+          {"name": "analytics-tracking", "source": "claude-skills", "personas": ["Analyzer", "Guardian"], "trigger": "Event tracking and data quality"}
+        ],
+        "documents": [
+          {"name": "docx", "source": "anthropic", "personas": ["Operator", "Artisan"], "trigger": "Word document creation/editing"},
+          {"name": "pdf", "source": "anthropic", "personas": ["Operator", "Artisan"], "trigger": "PDF manipulation, forms, merging"},
+          {"name": "pptx", "source": "anthropic", "personas": ["Artisan", "Promoter"], "trigger": "Presentation creation/editing"},
+          {"name": "xlsx", "source": "anthropic", "personas": ["Analyzer", "Operator"], "trigger": "Spreadsheet creation/analysis"},
+          {"name": "canvas-design", "source": "anthropic", "personas": ["Artisan", "Individualist"], "trigger": "Visual art in PNG/PDF"},
+          {"name": "brand-guidelines", "source": "anthropic", "personas": ["Artisan", "Guardian"], "trigger": "Brand colors and typography"},
+          {"name": "contract-proposal-writer", "source": "claude-skills", "personas": ["Operator", "Guardian"], "trigger": "Contracts, SOWs, NDAs, MSAs"},
+          {"name": "changelog-generator", "source": "claude-skills", "personas": ["Operator", "Guardian"], "trigger": "Release notes from commits"}
+        ]
+      }
+    },
+    "verify": {
+      "emoji": "🛡",
+      "lead": "Analyzer",
+      "support": ["Guardian", "Operator", "Scholar"],
+      "skills": [
+        {"name": "verification-before-completion", "source": "superpowers", "personas": ["Guardian", "Operator"], "hardGate": true, "trigger": "Before any completion claims"},
+        {"name": "tdd-guide", "source": "claude-skills", "personas": ["Guardian", "Operator"], "trigger": "Red-green-refactor across test frameworks"},
+        {"name": "tdd-workflow", "source": "everything-claude-code", "personas": ["Guardian", "Operator"], "trigger": "TDD principles with comprehensive coverage"},
+        {"name": "e2e-testing-patterns", "source": "everything-claude-code", "personas": ["Guardian", "Operator"], "trigger": "Playwright patterns, POM, CI/CD"},
+        {"name": "webapp-testing", "source": "anthropic", "personas": ["Guardian", "Operator"], "trigger": "Playwright for local web app verification"},
+        {"name": "playwright-pro", "source": "claude-skills", "personas": ["Guardian", "Operator"], "trigger": "Full testing suite with agents and templates"},
+        {"name": "playwright-skill", "source": "community", "personas": ["Guardian", "Operator"], "trigger": "General browser automation"},
+        {"name": "generate-playwright-tests", "source": "claude-skills", "personas": ["Guardian", "Operator"], "trigger": "Tests from user stories or descriptions"},
+        {"name": "testrail-integration", "source": "claude-skills", "personas": ["Guardian", "Operator"], "trigger": "Playwright-TestRail bidirectional sync"},
+        {"name": "skill-tester", "source": "claude-skills", "personas": ["Guardian", "Scholar"], "trigger": "Validate skill quality across tiers"},
+        {"name": "eval-harness", "source": "everything-claude-code", "personas": ["Guardian", "Scholar"], "trigger": "Eval-driven development, pass@k metrics"},
+        {"name": "regex-vs-llm-decision", "source": "everything-claude-code", "personas": ["Scholar", "Operator"], "trigger": "When to use regex vs LLM for parsing"}
+      ]
+    },
+    "ship": {
+      "emoji": "🚀",
+      "lead": "Guardian",
+      "support": ["Operator", "Captain"],
+      "skills": [
+        {"name": "executing-plans", "source": "superpowers", "personas": ["Operator", "Guardian"], "trigger": "Plan execution with batch checkpoints"},
+        {"name": "dispatching-parallel-agents", "source": "superpowers", "personas": ["Captain", "Strategist"], "trigger": "Parallel work across independent domains"},
+        {"name": "subagent-driven-development", "source": "superpowers", "personas": ["Strategist", "Operator"], "trigger": "Fresh subagent per task with two-stage review"}
+      ]
+    }
+  },
+  "crossChamber": {
+    "metaOrchestration": [
+      {"name": "using-skills", "source": "superpowers", "personas": ["ALL"], "trigger": "1% chance applies = invoke it"},
+      {"name": "writing-skills", "source": "superpowers", "personas": ["Scholar", "Strategist"], "trigger": "TDD for process documentation"},
+      {"name": "skill-creator", "source": "anthropic", "personas": ["Scholar", "Artisan"], "trigger": "Create, modify, eval skills"},
+      {"name": "skill-seekers", "source": "community", "personas": ["Scholar", "Operator"], "trigger": "Convert docs websites into skills"},
+      {"name": "agent-sync", "source": "airlock", "personas": ["Captain", "Operator"], "trigger": "Coordinate multiple AI agents"},
+      {"name": "mcp-builder-official", "source": "anthropic", "personas": ["Artisan", "Operator"], "trigger": "MCP server creation"},
+      {"name": "mcp-server-builder", "source": "claude-skills", "personas": ["Artisan", "Operator"], "trigger": "Production MCP from API contracts"},
+      {"name": "loki-mode", "source": "community", "personas": ["Maverick", "Venturer"], "trigger": "37-agent autonomous startup system"},
+      {"name": "self-improving-agent", "source": "claude-skills", "personas": ["Scholar", "Guardian"], "trigger": "Auto-memory curation and pattern promotion"},
+      {"name": "continuous-agent-loop", "source": "everything-claude-code", "personas": ["Operator", "Maverick"], "trigger": "Autonomous loop patterns"},
+      {"name": "autonomous-loops", "source": "everything-claude-code", "personas": ["Operator", "Maverick"], "trigger": "Legacy loop skill (compatibility)"},
+      {"name": "continuous-learning", "source": "everything-claude-code", "personas": ["Scholar", "Guardian"], "trigger": "Session-end pattern extraction"},
+      {"name": "continuous-learning-v2", "source": "everything-claude-code", "personas": ["Scholar", "Guardian"], "trigger": "Project-scoped instinct evolution"},
+      {"name": "configure-ecc", "source": "everything-claude-code", "personas": ["Operator", "Guardian"], "trigger": "Everything Claude Code installation wizard"},
+      {"name": "agent-harness-construction", "source": "everything-claude-code", "personas": ["Strategist", "Artisan"], "trigger": "Improve agent planning and error recovery"},
+      {"name": "agentic-engineering", "source": "everything-claude-code", "personas": ["Strategist", "Captain"], "trigger": "AI agents implement, humans enforce quality"},
+      {"name": "ai-first-engineering", "source": "everything-claude-code", "personas": ["Strategist", "Captain"], "trigger": "Process and architecture for AI-assisted teams"}
+    ],
+    "businessStrategy": [
+      {"name": "ceo-advisor", "source": "claude-skills", "personas": ["Strategist", "Captain"], "trigger": "Vision, fundraising, board management"},
+      {"name": "chief-of-staff", "source": "claude-skills", "personas": ["Strategist", "Captain"], "trigger": "Routes questions to right advisor"},
+      {"name": "coo-advisor", "source": "claude-skills", "personas": ["Operator", "Captain"], "trigger": "Strategy to execution, scaling processes"},
+      {"name": "company-operating-system", "source": "claude-skills", "personas": ["Strategist", "Operator"], "trigger": "Tools, rhythms, agreements"},
+      {"name": "company-context-engine", "source": "claude-skills", "personas": ["Scholar", "Guardian"], "trigger": "Memory layer for C-suite advisors"},
+      {"name": "culture-architect", "source": "claude-skills", "personas": ["Collaborator", "Altruist"], "trigger": "Culture as operational system"},
+      {"name": "founder-development-coach", "source": "claude-skills", "personas": ["Strategist", "Collaborator"], "trigger": "Founder growth as strategic priority"},
+      {"name": "ma-playbook", "source": "claude-skills", "personas": ["Strategist", "Captain"], "trigger": "Acquiring and being acquired"}
+    ],
+    "projectManagement": [
+      {"name": "atlassian-administrator", "source": "claude-skills", "personas": ["Operator", "Guardian"], "trigger": "Atlassian Cloud/DC management"},
+      {"name": "confluence-expert", "source": "claude-skills", "personas": ["Scholar", "Operator"], "trigger": "Documentation architecture"},
+      {"name": "jira-expert", "source": "claude-skills", "personas": ["Operator", "Guardian"], "trigger": "Jira configuration, JQL, workflows"}
+    ],
+    "context": [
+      {"name": "ai-context-maintenance", "source": "airlock", "personas": ["Scholar", "Guardian"], "trigger": "Keep agent documentation accurate"},
+      {"name": "slack-gif-creator", "source": "anthropic", "personas": ["Promoter", "Artisan"], "trigger": "Animated GIFs for Slack"}
+    ]
+  }
+}
