@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent OTTO — Playbook Engine Wiki</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a25;--surface3:#22222f;
+  --border:#2a2a3a;--text:#e8e8f0;--text2:#a0a0b8;--text3:#707088;
+  --accent:#6366f1;--accent2:#818cf8;--accent-glow:rgba(99,102,241,.15);
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f97316;--cyan:#06b6d4;--pink:#ec4899;
+  --discovery:#3b82f6;--build:#f59e0b;--verify:#8b5cf6;--ship:#22c55e;
+  --font:'Inter',system-ui,-apple-system,sans-serif;--mono:'JetBrains Mono','Fira Code',monospace;
+  --radius:12px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline}
+
+/* Layout */
+.wiki-shell{display:flex;min-height:100vh}
+.wiki-nav{width:260px;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;padding:20px 0}
+.wiki-nav h2{padding:0 20px;font-size:14px;color:var(--accent2);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.wiki-nav h2 .otto-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.nav-section{margin-bottom:8px}
+.nav-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:8px 20px 4px;font-weight:600}
+.nav-item{display:block;padding:8px 20px;color:var(--text2);font-size:13px;cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-glow);color:var(--accent2);border-left-color:var(--accent)}
+
+.wiki-main{margin-left:260px;flex:1;padding:40px 60px;max-width:1000px}
+.section{display:none;animation:fadeIn .3s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+h1{font-size:32px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--accent2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-size:22px;font-weight:600;margin:32px 0 12px;color:var(--text)}
+h3{font-size:16px;font-weight:600;margin:20px 0 8px;color:var(--accent2)}
+.subtitle{color:var(--text2);font-size:15px;margin-bottom:32px}
+p{margin-bottom:12px;color:var(--text2);font-size:14px}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;transition:border-color .2s}
+.card:hover{border-color:var(--accent)}
+.card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px}
+.card-desc{font-size:13px;color:var(--text2)}
+
+/* Taxonomy Grid */
+.tax-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin:20px 0}
+.tax-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+.tax-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.tax-card.atomic::before{background:var(--green)}
+.tax-card.chain::before{background:var(--yellow)}
+.tax-card.loop::before{background:var(--orange)}
+.tax-card.orchestrator::before{background:var(--accent)}
+.tax-card.utility::before{background:var(--cyan)}
+.tax-type{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px}
+.tax-card.atomic .tax-type{color:var(--green)}
+.tax-card.chain .tax-type{color:var(--yellow)}
+.tax-card.loop .tax-type{color:var(--orange)}
+.tax-card.orchestrator .tax-type{color:var(--accent2)}
+.tax-card.utility .tax-type{color:var(--cyan)}
+.tax-card h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.tax-card p{font-size:12px;color:var(--text2);margin:0}
+
+/* Flow Diagrams */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0;padding:16px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border)}
+.flow-node{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap}
+.flow-arrow{color:var(--text3);font-size:16px}
+.flow-node.discovery{background:rgba(59,130,246,.15);color:var(--discovery);border:1px solid rgba(59,130,246,.3)}
+.flow-node.build{background:rgba(245,158,11,.15);color:var(--build);border:1px solid rgba(245,158,11,.3)}
+.flow-node.verify{background:rgba(139,92,246,.15);color:var(--verify);border:1px solid rgba(139,92,246,.3)}
+.flow-node.ship{background:rgba(34,197,94,.15);color:var(--ship);border:1px solid rgba(34,197,94,.3)}
+
+/* Playbook */
+.pb-step{display:flex;gap:16px;margin-bottom:20px;position:relative}
+.pb-step::before{content:'';position:absolute;left:19px;top:40px;bottom:-20px;width:2px;background:var(--border)}
+.pb-step:last-child::before{display:none}
+.pb-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;z-index:1}
+.pb-step.discovery .pb-num{background:rgba(59,130,246,.2);color:var(--discovery);border:2px solid var(--discovery)}
+.pb-step.build .pb-num{background:rgba(245,158,11,.2);color:var(--build);border:2px solid var(--build)}
+.pb-step.verify .pb-num{background:rgba(139,92,246,.2);color:var(--verify);border:2px solid var(--verify)}
+.pb-step.ship .pb-num{background:rgba(34,197,94,.2);color:var(--ship);border:2px solid var(--ship)}
+.pb-content{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px}
+.pb-content h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.pb-content .pb-persona{font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;font-weight:600}
+.pb-step.discovery .pb-persona{color:var(--discovery)}
+.pb-step.build .pb-persona{color:var(--build)}
+.pb-step.verify .pb-persona{color:var(--verify)}
+.pb-step.ship .pb-persona{color:var(--ship)}
+.pb-skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pb-skill{padding:3px 10px;border-radius:6px;font-size:11px;background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+
+/* Table */
+.wiki-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.wiki-table th{text-align:left;padding:10px 12px;background:var(--surface2);color:var(--text);font-weight:600;border-bottom:2px solid var(--border)}
+.wiki-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+.wiki-table tr:hover td{background:var(--surface)}
+
+/* Tags */
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;margin:2px}
+.tag-atomic{background:rgba(34,197,94,.15);color:var(--green)}
+.tag-chain{background:rgba(234,179,8,.15);color:var(--yellow)}
+.tag-loop{background:rgba(249,115,22,.15);color:var(--orange)}
+.tag-orchestrator{background:rgba(99,102,241,.15);color:var(--accent2)}
+.tag-utility{background:rgba(6,182,212,.15);color:var(--cyan)}
+
+/* Constellation Map */
+.const-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin:20px 0}
+.const-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.const-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.const-card .const-role{font-size:11px;color:var(--accent2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:8px}
+.const-card .const-files{font-size:12px;color:var(--text3);margin-top:8px;font-family:var(--mono)}
+
+/* Code blocks */
+code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--cyan)}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;overflow-x:auto;margin:12px 0;font-size:12px;line-height:1.5}
+pre code{background:none;padding:0}
+
+/* Diagram */
+.dag-viz{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:16px 0;text-align:center}
+.dag-viz svg{max-width:100%}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.badge-discovery{background:rgba(59,130,246,.15);color:var(--discovery)}
+.badge-build{background:rgba(245,158,11,.15);color:var(--build)}
+.badge-verify{background:rgba(139,92,246,.15);color:var(--verify)}
+.badge-ship{background:rgba(34,197,94,.15);color:var(--ship)}
+
+/* Callout */
+.callout{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;padding:16px 20px;margin:16px 0;font-size:13px}
+.callout strong{color:var(--accent2)}
+.callout p{margin:4px 0;color:var(--text2)}
+
+/* Responsive */
+@media(max-width:900px){
+  .wiki-nav{display:none}
+  .wiki-main{margin-left:0;padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="wiki-shell">
+<nav class="wiki-nav">
+  <h2><span class="otto-dot"></span> OTTO Wiki</h2>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Foundation</div>
+    <div class="nav-item active" onclick="showSection('overview')">Overview</div>
+    <div class="nav-item" onclick="showSection('taxonomy')">Skill Taxonomy</div>
+    <div class="nav-item" onclick="showSection('chaining')">Skill Chaining Model</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Playbook Engine</div>
+    <div class="nav-item" onclick="showSection('engine')">Existing Architecture</div>
+    <div class="nav-item" onclick="showSection('enhancement')">Enhancement Spec</div>
+    <div class="nav-item" onclick="showSection('relay')">Relay Agent Pattern</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Proof of Concept</div>
+    <div class="nav-item" onclick="showSection('landing')">Landing Page Playbook</div>
+    <div class="nav-item" onclick="showSection('matrix')">Persona × Skill Matrix</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Coordination</div>
+    <div class="nav-item" onclick="showSection('constellation')">Constellation Map</div>
+    <div class="nav-item" onclick="showSection('agents')">Agent Architecture</div>
+  </div>
+</nav>
+
+<main class="wiki-main">
+
+<!-- ======================== OVERVIEW ======================== -->
+<div id="sec-overview" class="section active">
+<h1>Agent OTTO — Playbook Engine Wiki</h1>
+<p class="subtitle">The unified skill taxonomy, playbook chaining model, and enhancement spec for OTTO Alpha v2</p>
+
+<div class="callout">
+<strong>What is this?</strong>
+<p>This wiki documents how OTTO's skills actually work — what types exist, how they chain together, and how playbooks orchestrate them into complete workflows. It's the missing context layer that makes the Alpha demo self-explanatory.</p>
+</div>
+
+<h2>The Big Picture</h2>
+<p>OTTO sits at the intersection of three systems that already exist but aren't unified yet:</p>
+
+<div class="flow">
+<span class="flow-node discovery">PI Personas</span>
+<span class="flow-arrow">×</span>
+<span class="flow-node build">Skill Taxonomy</span>
+<span class="flow-arrow">×</span>
+<span class="flow-node verify">Execution Patterns</span>
+<span class="flow-arrow">=</span>
+<span class="flow-node ship">Playbook Engine</span>
+</div>
+
+<h3>What exists today (distributed)</h3>
+<table class="wiki-table">
+<tr><th>Layer</th><th>Source</th><th>What it does</th></tr>
+<tr><td>Persona Routing</td><td>agent-otto skill</td><td>Matches tasks to PI behavioral profiles + chambers</td></tr>
+<tr><td>Batch Execution</td><td>superpowers/executing-plans</td><td>Runs task batches with human checkpoints</td></tr>
+<tr><td>Subagent Dispatch</td><td>superpowers/subagent-driven-development</td><td>Fresh agent per task + two-stage review</td></tr>
+<tr><td>Parallel Agents</td><td>superpowers/dispatching-parallel-agents</td><td>Concurrent agents for independent domains</td></tr>
+<tr><td>Loop Patterns</td><td>everything-claude-code/autonomous-loops</td><td>6 patterns from pipelines to Ralphinho DAG</td></tr>
+<tr><td>DAG Orchestration</td><td>everything-claude-code/ralphinho-rfc-pipeline</td><td>RFC decomposition → merge queue</td></tr>
+<tr><td>Playbook Spec</td><td>pack.json → playbook-execute.yaml</td><td>DAG-based workflow with step tracking (spec only)</td></tr>
+<tr><td>UI Components</td><td>pack.json → PlaybookDAG.tsx, DAGNode.tsx</td><td>Visual DAG canvas (spec only)</td></tr>
+</table>
+
+<h3>What OTTO Alpha v2 unifies</h3>
+<p>Instead of creating something new, we're wiring these layers together through a skill taxonomy that lets OTTO automatically chain the right skills in the right order for any task. The persona determines <em>how</em> you work. The taxonomy determines <em>what</em> gets chained. The execution pattern determines <em>how it runs</em>.</p>
+</div>
+
+<!-- ======================== TAXONOMY ======================== -->
+<div id="sec-taxonomy" class="section">
+<h1>Skill Taxonomy</h1>
+<p class="subtitle">Every skill falls into one of five execution types. This classification drives how skills chain together in playbooks.</p>
+
+<div class="tax-grid">
+<div class="tax-card atomic">
+  <div class="tax-type">Atomic</div>
+  <h4>Single-Action Skills</h4>
+  <p>One input → one output. No state. No branching. The building blocks.</p>
+</div>
+<div class="tax-card chain">
+  <div class="tax-type">Chain</div>
+  <h4>Sequential Multi-Step Skills</h4>
+  <p>Ordered steps where each output feeds the next input. A pipeline.</p>
+</div>
+<div class="tax-card loop">
+  <div class="tax-type">Loop</div>
+  <h4>Iterative Refinement Skills</h4>
+  <p>Repeat until a quality gate passes. Self-correcting cycles.</p>
+</div>
+<div class="tax-card orchestrator">
+  <div class="tax-type">Orchestrator</div>
+  <h4>Routing Skills</h4>
+  <p>Dispatch to other skills based on context. Don't do work themselves — direct traffic.</p>
+</div>
+<div class="tax-card utility">
+  <div class="tax-type">Utility</div>
+  <h4>Global Helpers</h4>
+  <p>Available in every chamber. Context gathering, brainstorming, git ops, environment setup.</p>
+</div>
+</div>
+
+<h2>Classification Matrix</h2>
+<table class="wiki-table">
+<tr><th>Type</th><th>Examples</th><th>Execution</th><th>State</th><th>Can Parent?</th></tr>
+<tr>
+  <td><span class="tag tag-atomic">Atomic</span></td>
+  <td>Security Review, Database Designer, Copywriting, Cold Email, Frontend Design</td>
+  <td>Single invocation</td>
+  <td>Stateless</td>
+  <td>No — leaf nodes only</td>
+</tr>
+<tr>
+  <td><span class="tag tag-chain">Chain</span></td>
+  <td>Writing Plans, TDD (Red→Green→Refactor), Finishing a Branch</td>
+  <td>Sequential pipeline</td>
+  <td>Pass-through</td>
+  <td>Yes — calls atomics in sequence</td>
+</tr>
+<tr>
+  <td><span class="tag tag-loop">Loop</span></td>
+  <td>Executing Plans (batch loop), Continuous PR Loop, De-Sloppify, Subagent-Driven Dev</td>
+  <td>Repeat until done</td>
+  <td>Accumulated</td>
+  <td>Yes — wraps chains + atomics</td>
+</tr>
+<tr>
+  <td><span class="tag tag-orchestrator">Orchestrator</span></td>
+  <td>Agent OTTO, Loki Mode, Ralphinho RFC Pipeline, Dispatching Parallel Agents</td>
+  <td>Route + delegate</td>
+  <td>Coordination</td>
+  <td>Yes — top-level only</td>
+</tr>
+<tr>
+  <td><span class="tag tag-utility">Utility</span></td>
+  <td>Brainstorming, Using Git Worktrees, Context7 MCP, Exa Search MCP</td>
+  <td>On-demand</td>
+  <td>Varies</td>
+  <td>No — called by any parent</td>
+</tr>
+</table>
+
+<h2>How Types Nest</h2>
+<div class="callout">
+<strong>The nesting rule:</strong> Orchestrators call Loops and Chains. Loops call Chains and Atomics. Chains call Atomics. Utilities can be called at any level. Nothing calls an Orchestrator except the user (or another orchestrator in a multi-agent setup).
+</div>
+
+<pre><code>Orchestrator (OTTO / Ralphinho)
+├── Loop (Subagent-Driven Development)
+│   ├── Chain (Writing Plans → TDD → Finishing Branch)
+│   │   ├── Atomic (Security Review)
+│   │   ├── Atomic (Frontend Design)
+│   │   └── Atomic (Database Designer)
+│   └── Utility (Git Worktrees)
+├── Loop (Executing Plans — batch of 3)
+│   ├── Atomic (task 1)
+│   ├── Atomic (task 2)
+│   └── Atomic (task 3)
+│   └── [human checkpoint → next batch]
+└── Utility (Brainstorming — used before any loop)</code></pre>
+
+<h2>The 393 Skills by Type</h2>
+<p>Here's the approximate breakdown from our inventory of 380+ skills across all collections:</p>
+<table class="wiki-table">
+<tr><th>Type</th><th>Count</th><th>%</th><th>Key Collections</th></tr>
+<tr><td><span class="tag tag-atomic">Atomic</span></td><td>~310</td><td>79%</td><td>MCP servers (111), single-action Airlock skills, personas</td></tr>
+<tr><td><span class="tag tag-chain">Chain</span></td><td>~35</td><td>9%</td><td>Superpowers (writing-plans, TDD), UI/UX workflows</td></tr>
+<tr><td><span class="tag tag-loop">Loop</span></td><td>~25</td><td>6%</td><td>Autonomous loops, executing-plans, subagent-dev</td></tr>
+<tr><td><span class="tag tag-orchestrator">Orchestrator</span></td><td>~10</td><td>3%</td><td>OTTO, Loki Mode, Ralphinho, parallel dispatch</td></tr>
+<tr><td><span class="tag tag-utility">Utility</span></td><td>~13</td><td>3%</td><td>Brainstorming, git worktrees, search MCPs</td></tr>
+</table>
+</div>
+
+<!-- ======================== CHAINING ======================== -->
+<div id="sec-chaining" class="section">
+<h1>Skill Chaining Model</h1>
+<p class="subtitle">How parent-child relationships between skills create playbooks</p>
+
+<h2>The Parent-Child Contract</h2>
+<p>Every skill chain follows a simple contract: the parent skill defines WHAT to do, and the child skill defines HOW to do it. The parent passes context down and receives results back up.</p>
+
+<table class="wiki-table">
+<tr><th>Relationship</th><th>Parent Passes Down</th><th>Child Returns Up</th><th>Example</th></tr>
+<tr><td>Orchestrator → Loop</td><td>Phase context, persona mode, acceptance criteria</td><td>Completion status, artifacts produced</td><td>OTTO → Subagent-Driven Dev</td></tr>
+<tr><td>Loop → Chain</td><td>Current task, iteration count, accumulated state</td><td>Task result, pass/fail, next action</td><td>Executing Plans → Writing Plans</td></tr>
+<tr><td>Chain → Atomic</td><td>Step input, constraints, quality bar</td><td>Step output (review, design, code)</td><td>TDD → Security Review</td></tr>
+<tr><td>Any → Utility</td><td>Query / context need</td><td>Context / environment / info</td><td>Any → Brainstorming</td></tr>
+</table>
+
+<h2>Chaining Patterns</h2>
+<h3>Pattern 1: Linear Pipeline</h3>
+<div class="flow">
+<span class="flow-node discovery">Brainstorm</span>
+<span class="flow-arrow">→</span>
+<span class="flow-node discovery">Research</span>
+<span class="flow-arrow">→</span>
+<span class="flow-node build">Write Plan</span>
+<span class="flow-arrow">→</span>
+<span class="flow-node build">Implement</span>
+<span class="flow-arrow">→</span>
+<span class="flow-node verify">Review</span>
+<span class="flow-arrow">→</span>
+<span class="flow-node ship">Deploy</span>
+</div>
+<p>Every step completes before the next begins. Simple, predictable. Best for small features.</p>
+
+<h3>Pattern 2: Fan-Out / Fan-In (Parallel)</h3>
+<div class="flow">
+<span class="flow-node discovery">Brainstorm</span>
+<span class="flow-arrow">→</span>
+<span class="flow-node build">Agent A: Frontend</span>
+<span class="flow-arrow">|</span>
+<span class="flow-node build">Agent B: Backend</span>
+<span class="flow-arrow">|</span>
+<span class="flow-node build">Agent C: Tests</span>
+<span class="flow-arrow">→</span>
+<span class="flow-node verify">Merge + Review</span>
+</div>
+<p>Independent work units run concurrently. Merge point validates integration. Best for medium features with separable concerns.</p>
+
+<h3>Pattern 3: DAG with Dependencies (Ralphinho)</h3>
+<pre><code>RFC Intake
+├── Unit A (no deps) ─────────────────→ Validate A → Merge
+├── Unit B (no deps) ─────────────────→ Validate B → Merge
+├── Unit C (depends on A) ────────────→ Validate C → Merge
+└── Unit D (depends on B + C) ────────→ Validate D → Merge
+                                              ↓
+                                     Final System Verification</code></pre>
+<p>Most sophisticated. Dependency-aware execution with merge queue, eviction recovery, and complexity tiers. Best for large features (10+ files changed).</p>
+
+<h2>Chamber × Type Affinity</h2>
+<p>Each chamber has natural affinities for certain skill types:</p>
+<table class="wiki-table">
+<tr><th>Chamber</th><th>Primary Types</th><th>Why</th></tr>
+<tr><td><span class="badge badge-discovery">Discovery</span></td><td><span class="tag tag-utility">Utility</span> <span class="tag tag-atomic">Atomic</span></td><td>Research and context-gathering are mostly single-action or on-demand</td></tr>
+<tr><td><span class="badge badge-build">Build</span></td><td><span class="tag tag-chain">Chain</span> <span class="tag tag-loop">Loop</span></td><td>Implementation follows plans (chains) with iterative refinement (loops)</td></tr>
+<tr><td><span class="badge badge-verify">Verify</span></td><td><span class="tag tag-atomic">Atomic</span> <span class="tag tag-loop">Loop</span></td><td>Reviews are atomic checks; the swarm itself is a loop of checks</td></tr>
+<tr><td><span class="badge badge-ship">Ship</span></td><td><span class="tag tag-chain">Chain</span> <span class="tag tag-utility">Utility</span></td><td>Deployment is procedural (chains) with monitoring setup (utilities)</td></tr>
+</table>
+</div>
+
+<!-- ======================== ENGINE ======================== -->
+<div id="sec-engine" class="section">
+<h1>Existing Playbook Architecture</h1>
+<p class="subtitle">What we already have — distributed across 5 skill collections</p>
+
+<h2>Layer Map</h2>
+<p>The playbook engine exists today as five layers that were built independently. Each layer is a skill or skill set that handles one aspect of orchestrated execution.</p>
+
+<div class="card">
+<div class="card-title">Layer 1: Plan-to-Execution Bridge (Superpowers)</div>
+<div class="card-desc">
+<strong>executing-plans</strong> — Batch execution with human checkpoints (default 3 tasks per batch)<br>
+<strong>writing-plans</strong> — Generates bite-sized task lists with file paths, commands, commit messages<br>
+<strong>subagent-driven-development</strong> — Fresh subagent per task with two-stage review (spec + quality)<br>
+<strong>dispatching-parallel-agents</strong> — Concurrent agents for independent problem domains<br>
+<strong>Dependency chain:</strong> brainstorming → writing-plans → [executing-plans OR subagent-driven-dev] → finishing-a-development-branch
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Layer 2: Execution Patterns (Autonomous Loops)</div>
+<div class="card-desc">
+Six patterns ranked by complexity:<br>
+1. Sequential Pipeline — <code>claude -p</code> shell chains<br>
+2. NanoClaw REPL — persistent interactive sessions<br>
+3. Infinite Agentic Loop — 2-prompt orchestrator + N sub-agents<br>
+4. Continuous PR Loop — auto-PR + CI wait + auto-merge<br>
+5. De-Sloppify — separate cleanup pass after implementation<br>
+6. Ralphinho DAG — RFC decomposition → dependency-aware execution → merge queue
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Layer 3: DAG Orchestration (Ralphinho RFC Pipeline)</div>
+<div class="card-desc">
+7-stage pipeline: RFC intake → DAG decomposition → Unit assignment → Parallel implementation → Validation → Merge queue → System verification<br>
+<strong>Key innovations:</strong> Complexity tiers (trivial/small/medium/large), worktree isolation per unit, separate context windows for review (eliminates author bias), merge queue with eviction recovery
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Layer 4: Persona Routing (Agent OTTO)</div>
+<div class="card-desc">
+17 PI personas × 4 workflow chambers × 393 skills = behavioral routing layer<br>
+OTTO determines WHO does the work (persona), WHAT tools they use (skill loadout), and WHEN they transition (chamber flow)
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Layer 5: Platform Spec (pack.json)</div>
+<div class="card-desc">
+Specifies but does NOT yet implement:<br>
+<code>playbook-execute.yaml</code> — DAG-based playbook workflows with step tracking and conditional branching<br>
+<code>workflow-engine-spec.md</code> — DAG builder, node catalog, execution runtime<br>
+<code>PlaybookDAG.tsx</code> — Visual DAG canvas for playbook workflow execution<br>
+<code>DAGNode.tsx</code> — Individual node in DAG workflow visualization<br>
+<code>WorkflowBuilder.tsx</code> — Visual workflow DAG builder with node palette and canvas
+</div>
+</div>
+
+<h2>The Gap</h2>
+<p>These layers work independently but aren't wired together. Today, you have to manually know which execution pattern to use, manually load the right skills, and manually transition between phases. OTTO's job is to make this automatic.</p>
+</div>
+
+<!-- ======================== ENHANCEMENT ======================== -->
+<div id="sec-enhancement" class="section">
+<h1>Enhancement Spec</h1>
+<p class="subtitle">How to unify the existing distributed engine — no new systems, just wiring</p>
+
+<h2>Goal</h2>
+<p>Make OTTO automatically select the right execution pattern, chain the right skills, and manage phase transitions — using only the skills that already exist.</p>
+
+<h2>Three Enhancements</h2>
+
+<div class="card">
+<div class="card-title">Enhancement 1: Skill Type Metadata</div>
+<div class="card-desc">
+Add a <code>type</code> field to every skill's YAML frontmatter: <code>atomic | chain | loop | orchestrator | utility</code><br>
+Add a <code>children</code> field listing skills this skill can invoke.<br>
+Add a <code>chamber_affinity</code> field: <code>[discovery, build, verify, ship]</code><br><br>
+<strong>Example:</strong><br>
+<pre><code>name: subagent-driven-development
+type: loop
+children: [writing-plans, finishing-a-development-branch, security-review, tdd-guide]
+chamber_affinity: [build, verify]
+requires: [using-git-worktrees]</code></pre>
+This lets OTTO's routing engine understand skill relationships without hardcoding them.
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Enhancement 2: Playbook Templates in OTTO</div>
+<div class="card-desc">
+Add a <code>references/playbooks.md</code> to the agent-otto skill with canonical playbook templates for common tasks.<br><br>
+Each playbook template specifies: chamber flow, persona per phase, execution pattern to use, skill chain, and acceptance criteria.<br><br>
+OTTO matches the user's task description against playbook templates (same keyword scoring as Auto-Suggest) and loads the best match.
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Enhancement 3: Execution Pattern Auto-Selection</div>
+<div class="card-desc">
+OTTO picks the execution pattern based on task complexity:<br><br>
+<table class="wiki-table">
+<tr><th>Complexity Signal</th><th>Pattern</th><th>Skill</th></tr>
+<tr><td>1-3 files, single domain</td><td>Linear Pipeline</td><td>executing-plans (batch of 3)</td></tr>
+<tr><td>4-10 files, 2+ domains</td><td>Fan-Out / Fan-In</td><td>dispatching-parallel-agents</td></tr>
+<tr><td>10+ files, dependencies</td><td>Ralphinho DAG</td><td>ralphinho-rfc-pipeline</td></tr>
+<tr><td>Multi-day / continuous</td><td>PR Loop</td><td>continuous-pr-loop</td></tr>
+</table>
+<br>
+The user doesn't need to know which pattern — OTTO detects complexity from the task description and plan output.
+</div>
+</div>
+
+<h2>Implementation Priority</h2>
+<div class="callout">
+<strong>Phase 1 (now):</strong> Add type metadata to the ~30 most important skills. Create playbooks.md with 5 canonical templates.<br>
+<strong>Phase 2 (next):</strong> Build the auto-selection logic into OTTO's SKILL.md. Wire it into the HTML alpha demo.<br>
+<strong>Phase 3 (later):</strong> Implement pack.json specs (playbook-execute.yaml, PlaybookDAG.tsx) for the actual Airlock app.
+</div>
+</div>
+
+<!-- ======================== RELAY ======================== -->
+<div id="sec-relay" class="section">
+<h1>Relay Agent Pattern</h1>
+<p class="subtitle">A passive agent that caches MCP server state so other agents don't need direct connections</p>
+
+<h2>The Problem</h2>
+<p>Today, every agent that needs data from an MCP server has to connect directly, authenticate, and query. This means:</p>
+<p>• Every agent needs credentials for every MCP server it might use<br>
+• Redundant queries hit the same endpoints repeatedly<br>
+• Agent startup is slow because it has to discover what's available<br>
+• No shared state between agents working on the same constellation</p>
+
+<h2>The Relay Pattern</h2>
+<pre><code>┌─────────────────────────────────────────────────┐
+│  Relay Agent (always running, passive)           │
+│                                                  │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐        │
+│  │ GitHub   │ │ Supabase │ │ Linear   │ ...    │
+│  │ Cache    │ │ Cache    │ │ Cache    │        │
+│  └──────────┘ └──────────┘ └──────────┘        │
+│       ↕              ↕            ↕             │
+│  [MCP Server]   [MCP Server]  [MCP Server]     │
+│                                                  │
+│  State: last_sync, cache_ttl, change_log        │
+└──────────────────┬──────────────────────────────┘
+                   │ query/response
+     ┌─────────────┼─────────────┐
+     ↓             ↓             ↓
+┌─────────┐  ┌─────────┐  ┌─────────┐
+│ Agent A │  │ Agent B │  │ Agent C │
+│(Scholar)│  │(Maverick│  │(Analyzer│
+│         │  │         │  │         │
+└─────────┘  └─────────┘  └─────────┘</code></pre>
+
+<h2>How It Works</h2>
+<table class="wiki-table">
+<tr><th>Step</th><th>What happens</th><th>Who</th></tr>
+<tr><td>1. Boot</td><td>Relay connects to all registered MCP servers, pulls initial state</td><td>Relay Agent</td></tr>
+<tr><td>2. Cache</td><td>Stores responses indexed by server + query type with TTL</td><td>Relay Agent</td></tr>
+<tr><td>3. Query</td><td>Working agent asks relay: "what's in the GitHub repo?"</td><td>Any Agent</td></tr>
+<tr><td>4. Respond</td><td>If cache fresh → return cached. If stale → refresh, cache, return.</td><td>Relay Agent</td></tr>
+<tr><td>5. Watch</td><td>Relay monitors for changes (webhooks or polling) and updates cache</td><td>Relay Agent</td></tr>
+</table>
+
+<h2>Implementation</h2>
+<p>The relay agent would be a skill that runs as a background process in the Claude Code terminal. It exposes a simple query interface that other skills call instead of connecting to MCP servers directly.</p>
+
+<div class="callout">
+<strong>Key insight:</strong> The relay doesn't replace MCP servers — it sits between agents and servers as a cache + change-detection layer. Agents ask the relay first. If it has a fresh answer, the MCP server never gets hit. If there's been an update, only the relay refreshes.
+</div>
+
+<p>This is essentially a read-through cache with change notifications. The relay skill would need: a cache store (in-memory dict or SQLite), TTL per server type, a change log for audit, and a query API that other skills can call.</p>
+</div>
+
+<!-- ======================== LANDING PAGE PLAYBOOK ======================== -->
+<div id="sec-landing" class="section">
+<h1>Canonical Playbook: Landing Page</h1>
+<p class="subtitle">"I'm building the landing page for my website" — here's the complete skill chain from intent to deploy</p>
+
+<div class="callout">
+<strong>This is the proof-of-concept.</strong> When a user says "build me a landing page," OTTO should automatically generate this entire playbook — selecting the persona, loading the skills, choosing the execution pattern, and managing transitions between phases.
+</div>
+
+<h2>The Full Playbook</h2>
+
+<div class="pb-step discovery">
+<div class="pb-num">1</div>
+<div class="pb-content">
+  <div class="pb-persona">Discovery Chamber — Scholar Lead</div>
+  <h4>Intent Capture + Research</h4>
+  <p>Understand what the user actually wants. What's the business? Who's the audience? What's the tone? What pages exist already? What's the tech stack?</p>
+  <div class="pb-skills">
+    <span class="pb-skill">Brainstorming (utility)</span>
+    <span class="pb-skill">Exa Search MCP (atomic)</span>
+    <span class="pb-skill">Context7 MCP (atomic)</span>
+    <span class="pb-skill">Technology Stack Evaluator (atomic)</span>
+  </div>
+  <p style="margin-top:8px;font-size:12px;color:var(--text3)">Output: Design brief with audience, goals, tech constraints, content requirements</p>
+</div>
+</div>
+
+<div class="pb-step discovery">
+<div class="pb-num">2</div>
+<div class="pb-content">
+  <div class="pb-persona">Discovery Chamber — Strategist Support</div>
+  <h4>Architecture + Design Doc</h4>
+  <p>Create the UX/UI design document. Define layout, sections, components, animations, responsive breakpoints. Present for user approval before any code is written.</p>
+  <div class="pb-skills">
+    <span class="pb-skill">UI/UX Pro Max (chain)</span>
+    <span class="pb-skill">Senior Architect (atomic)</span>
+    <span class="pb-skill">Frontend Design (atomic)</span>
+    <span class="pb-skill">Figma MCP (atomic)</span>
+  </div>
+  <p style="margin-top:8px;font-size:12px;color:var(--text3)">Output: Design doc with wireframe, component list, color palette, typography, content map</p>
+</div>
+</div>
+
+<div class="pb-step build">
+<div class="pb-num">3</div>
+<div class="pb-content">
+  <div class="pb-persona">Build Chamber — Maverick Lead</div>
+  <h4>Implementation Plan</h4>
+  <p>Break the design doc into bite-sized implementation tasks. Each task: files to create/modify, step-by-step code, commands, commit messages. This is where Writing Plans skill generates the task list.</p>
+  <div class="pb-skills">
+    <span class="pb-skill">Writing Plans (chain)</span>
+    <span class="pb-skill">SaaS Scaffolder (atomic)</span>
+  </div>
+  <p style="margin-top:8px;font-size:12px;color:var(--text3)">Output: 10-20 implementation tasks with full instructions</p>
+</div>
+</div>
+
+<div class="pb-step build">
+<div class="pb-num">4</div>
+<div class="pb-content">
+  <div class="pb-persona">Build Chamber — Maverick + Venturer</div>
+  <h4>Autonomous Coding</h4>
+  <p>Execute the plan. For a landing page (medium complexity, 4-10 files), use Fan-Out pattern: one agent handles layout/structure, another handles content/copy, another handles animations/interactions. They merge at the end.</p>
+  <div class="pb-skills">
+    <span class="pb-skill">Subagent-Driven Dev (loop)</span>
+    <span class="pb-skill">Dispatching Parallel Agents (orchestrator)</span>
+    <span class="pb-skill">Frontend Design (atomic)</span>
+    <span class="pb-skill">Web Artifacts Builder (atomic)</span>
+    <span class="pb-skill">Copywriting (atomic)</span>
+    <span class="pb-skill">Algorithmic Art (atomic)</span>
+    <span class="pb-skill">Using Git Worktrees (utility)</span>
+  </div>
+  <p style="margin-top:8px;font-size:12px;color:var(--text3)">Output: Working landing page code across all component files</p>
+</div>
+</div>
+
+<div class="pb-step verify">
+<div class="pb-num">5</div>
+<div class="pb-content">
+  <div class="pb-persona">Verify Chamber — Analyzer Lead</div>
+  <h4>Review Swarm</h4>
+  <p>The 10+ skill review swarm runs. Security checks, performance profiling, accessibility audit, code quality review, cross-browser validation. Each review is an atomic skill. The swarm itself is a loop.</p>
+  <div class="pb-skills">
+    <span class="pb-skill">Security Review (atomic)</span>
+    <span class="pb-skill">Performance Profiler (atomic)</span>
+    <span class="pb-skill">Coding Standards (atomic)</span>
+    <span class="pb-skill">Senior QA Engineer (atomic)</span>
+    <span class="pb-skill">E2E Testing Patterns (atomic)</span>
+    <span class="pb-skill">Playwright MCP (atomic)</span>
+    <span class="pb-skill">De-Sloppify (loop)</span>
+  </div>
+  <p style="margin-top:8px;font-size:12px;color:var(--text3)">Output: Review report with pass/fail per check, fix list</p>
+</div>
+</div>
+
+<div class="pb-step verify">
+<div class="pb-num">6</div>
+<div class="pb-content">
+  <div class="pb-persona">Verify Chamber — Specialist Support</div>
+  <h4>Fix + Re-test</h4>
+  <p>Address review findings. Re-run failing checks. Iterate until all gates pass. This is the De-Sloppify pattern — a separate cleanup pass that fixes quality issues from the implementation phase.</p>
+  <div class="pb-skills">
+    <span class="pb-skill">TDD Guide (chain)</span>
+    <span class="pb-skill">De-Sloppify (loop)</span>
+    <span class="pb-skill">Finishing a Branch (chain)</span>
+  </div>
+  <p style="margin-top:8px;font-size:12px;color:var(--text3)">Output: Clean, passing codebase ready for deploy</p>
+</div>
+</div>
+
+<div class="pb-step ship">
+<div class="pb-num">7</div>
+<div class="pb-content">
+  <div class="pb-persona">Ship Chamber — Guardian Lead</div>
+  <h4>Deploy + Monitor</h4>
+  <p>Push to production. Set up monitoring. Create rollback plan. Validate in production environment.</p>
+  <div class="pb-skills">
+    <span class="pb-skill">CI/CD Pipeline Builder (chain)</span>
+    <span class="pb-skill">Vercel MCP (atomic)</span>
+    <span class="pb-skill">Cloudflare MCP (atomic)</span>
+    <span class="pb-skill">Checkly MCP (atomic)</span>
+    <span class="pb-skill">Runbook Generator (atomic)</span>
+  </div>
+  <p style="margin-top:8px;font-size:12px;color:var(--text3)">Output: Live landing page with monitoring and rollback plan</p>
+</div>
+</div>
+
+<div class="pb-step ship">
+<div class="pb-num">8</div>
+<div class="pb-content">
+  <div class="pb-persona">Ship Chamber — Adapter Support</div>
+  <h4>Handoff + Report</h4>
+  <p>Tell the user what was built, what decisions were made, what to watch for. Generate the deployment report. This is where OTTO closes the loop.</p>
+  <div class="pb-skills">
+    <span class="pb-skill">Board Deck Builder (atomic)</span>
+    <span class="pb-skill">Quality Documentation Manager (atomic)</span>
+  </div>
+  <p style="margin-top:8px;font-size:12px;color:var(--text3)">Output: Deployment report, architecture notes, monitoring dashboard link</p>
+</div>
+</div>
+
+<h2>Playbook Metadata</h2>
+<table class="wiki-table">
+<tr><th>Property</th><th>Value</th></tr>
+<tr><td>Total skills used</td><td>28 (across all phases)</td></tr>
+<tr><td>Personas activated</td><td>Scholar → Maverick → Analyzer → Guardian (+ Strategist, Venturer, Specialist, Adapter support)</td></tr>
+<tr><td>Execution pattern</td><td>Fan-Out / Fan-In (parallel agents for implementation)</td></tr>
+<tr><td>Estimated complexity</td><td>Medium (4-10 files)</td></tr>
+<tr><td>Human checkpoints</td><td>After step 2 (design approval), after step 5 (review report), after step 7 (deploy confirmation)</td></tr>
+</table>
+</div>
+
+<!-- ======================== MATRIX ======================== -->
+<div id="sec-matrix" class="section">
+<h1>Persona × Skill Matrix</h1>
+<p class="subtitle">Which personas should own which skill types — the routing logic for playbook generation</p>
+
+<h2>Primary Ownership</h2>
+<p>Each persona has natural affinity for certain skill types based on their PI behavioral profile. This is how OTTO decides which persona handles which phase of a playbook.</p>
+
+<table class="wiki-table">
+<tr><th>Persona</th><th>Atomics They Own</th><th>Chains They Run</th><th>Loops They Drive</th><th>Best Chamber</th></tr>
+<tr><td><strong>Scholar</strong></td><td>Research MCPs, Data Science, ML Engineer</td><td>—</td><td>—</td><td>Discovery</td></tr>
+<tr><td><strong>Strategist</strong></td><td>Senior Architect, Tech Stack Evaluator, RAG Architect</td><td>—</td><td>—</td><td>Discovery</td></tr>
+<tr><td><strong>Maverick</strong></td><td>Frontend Design, Agent Designer, Algorithmic Art</td><td>Writing Plans</td><td>Subagent-Driven Dev</td><td>Build</td></tr>
+<tr><td><strong>Venturer</strong></td><td>Docker MCP, Supabase MCP, Cloudflare MCP, SaaS Scaffolder</td><td>—</td><td>—</td><td>Build</td></tr>
+<tr><td><strong>Captain</strong></td><td>CEO Advisor, Board Deck Builder, Launch Strategy</td><td>—</td><td>—</td><td>Build (orchestrate)</td></tr>
+<tr><td><strong>Analyzer</strong></td><td>Security Review, Performance Profiler, Database Designer</td><td>—</td><td>Review Swarm</td><td>Verify</td></tr>
+<tr><td><strong>Controller</strong></td><td>QMS Audit, CI/CD Builder, ISO 27001</td><td>Release Pipeline</td><td>—</td><td>Verify / Ship</td></tr>
+<tr><td><strong>Specialist</strong></td><td>Senior QA, TDD Guide, API Design Patterns</td><td>TDD Cycle</td><td>Executing Plans</td><td>Verify</td></tr>
+<tr><td><strong>Guardian</strong></td><td>GDPR Expert, Snyk MCP, Vault MCP, Risk Mgmt</td><td>Finishing a Branch</td><td>—</td><td>Ship</td></tr>
+<tr><td><strong>Operator</strong></td><td>Senior DevOps, AWS MCP, Kubernetes MCP, Datadog MCP</td><td>Deployment Pipeline</td><td>Continuous PR Loop</td><td>Ship</td></tr>
+</table>
+
+<h2>The Utility Layer (All Chambers)</h2>
+<p>These skills are available to every persona in every chamber. They're the "global toolkit" that supports the entire playbook lifecycle.</p>
+
+<table class="wiki-table">
+<tr><th>Utility Skill</th><th>When It's Called</th><th>Who Calls It</th></tr>
+<tr><td>Brainstorming</td><td>Before any implementation — intent capture, design approval</td><td>Any persona, usually first in Discovery</td></tr>
+<tr><td>Using Git Worktrees</td><td>Before any parallel work — workspace isolation</td><td>Any loop or parallel pattern</td></tr>
+<tr><td>Context7 MCP</td><td>When agent needs to understand existing codebase</td><td>Any persona during any phase</td></tr>
+<tr><td>Exa Search MCP</td><td>When agent needs external research</td><td>Scholar primarily, any during Discovery</td></tr>
+<tr><td>Tavily Search MCP</td><td>Fact-checking, web research</td><td>Scholar, Analyzer</td></tr>
+<tr><td>GitHub MCP</td><td>Repo operations, PR management</td><td>Any persona during Build/Ship</td></tr>
+</table>
+
+<h2>Anti-Pattern Detection</h2>
+<p>OTTO should flag these combinations as anti-patterns:</p>
+<table class="wiki-table">
+<tr><th>Anti-Pattern</th><th>Why It's Bad</th><th>What OTTO Should Do</th></tr>
+<tr><td>Maverick running Security Review</td><td>Low-F personas skip details that security requires</td><td>Switch to Analyzer for Verify phase</td></tr>
+<tr><td>Scholar doing autonomous coding loops</td><td>Low-E personas work slowly in fast-iteration modes</td><td>Switch to Maverick for Build phase</td></tr>
+<tr><td>Guardian brainstorming new features</td><td>High-C/F personas resist change and novel ideas</td><td>Switch to Maverick or Captain for ideation</td></tr>
+<tr><td>Analyzer deploying to production</td><td>High-F personas over-analyze and never ship</td><td>Switch to Guardian or Operator for Ship phase</td></tr>
+<tr><td>Skipping Discovery entirely</td><td>Building without understanding leads to rework</td><td>Always start with at least a Brainstorming step</td></tr>
+</table>
+</div>
+
+<!-- ======================== CONSTELLATION ======================== -->
+<div id="sec-constellation" class="section">
+<h1>Constellation Map</h1>
+<p class="subtitle">Which repos need coordinated updates to unify the playbook engine</p>
+
+<div class="callout">
+<strong>Key finding:</strong> The playbook engine lives across 4 distinct repos/collections. Enhancing it requires coordinated updates to all of them. Here's the map of what changes where.
+</div>
+
+<div class="const-grid">
+<div class="const-card">
+  <div class="const-role">PRIMARY — Skills Library</div>
+  <h4>airlock-skills-library</h4>
+  <p style="font-size:13px;color:var(--text2)">Home of Agent OTTO, the HTML alpha demo, and the pack.json manifest. This is where playbook templates, skill type metadata, and the wiki live.</p>
+  <div class="const-files">
+    Changes needed:<br>
+    • skills/agent-otto/references/playbooks.md (NEW)<br>
+    • skills/agent-otto/SKILL.md (enhance routing)<br>
+    • pi-index-explorer.html (add wiki section)<br>
+    • pack.json (update skill metadata)
+  </div>
+</div>
+
+<div class="const-card">
+  <div class="const-role">EXECUTION — Superpowers</div>
+  <h4>superpowers-main (skill collection)</h4>
+  <p style="font-size:13px;color:var(--text2)">The execution layer: executing-plans, subagent-driven-dev, dispatching-parallel-agents, writing-plans, brainstorming, TDD, git worktrees, finishing branches.</p>
+  <div class="const-files">
+    Changes needed:<br>
+    • Add type/children/chamber_affinity metadata<br>
+    to all 8 skill YAML frontmatters<br>
+    • No behavioral changes — metadata only
+  </div>
+</div>
+
+<div class="const-card">
+  <div class="const-role">PATTERNS — Everything Claude Code</div>
+  <h4>everything-claude-code-main (skill collection)</h4>
+  <p style="font-size:13px;color:var(--text2)">The pattern library: autonomous-loops (6 patterns), ralphinho-rfc-pipeline. These define HOW work gets executed.</p>
+  <div class="const-files">
+    Changes needed:<br>
+    • Add type/children/chamber_affinity metadata<br>
+    to autonomous-loops and ralphinho skills<br>
+    • No behavioral changes — metadata only
+  </div>
+</div>
+
+<div class="const-card">
+  <div class="const-role">APP PLATFORM — Airlock Config</div>
+  <h4>airlock-config / airlock-gen-ui</h4>
+  <p style="font-size:13px;color:var(--text2)">The actual Airlock app where PlaybookDAG.tsx, DAGNode.tsx, and WorkflowBuilder.tsx will eventually be implemented.</p>
+  <div class="const-files">
+    Changes needed (Phase 3):<br>
+    • Implement PlaybookDAG.tsx<br>
+    • Implement DAGNode.tsx<br>
+    • Implement WorkflowBuilder.tsx<br>
+    • Implement playbook-execute.yaml runtime
+  </div>
+</div>
+</div>
+
+<h2>Coordination Protocol</h2>
+<table class="wiki-table">
+<tr><th>Phase</th><th>Repos Touched</th><th>Agent per Repo?</th><th>Notes</th></tr>
+<tr><td>Phase 1: Metadata</td><td>skills-library, superpowers, everything-claude-code</td><td>One orchestrator + one per repo</td><td>Parallel — changes are independent per repo</td></tr>
+<tr><td>Phase 2: OTTO Routing</td><td>skills-library only</td><td>One agent (Maverick)</td><td>Sequential — depends on Phase 1 metadata</td></tr>
+<tr><td>Phase 3: App Platform</td><td>airlock-config, airlock-gen-ui</td><td>One per repo</td><td>Sequential — depends on Phase 2 routing</td></tr>
+</table>
+</div>
+
+<!-- ======================== AGENTS ======================== -->
+<div id="sec-agents" class="section">
+<h1>Agent Architecture</h1>
+<p class="subtitle">How multiple agents coordinate to run a playbook</p>
+
+<h2>The Multi-Agent Model</h2>
+<p>For the Airlock constellation, we use a hub-and-spoke model where one orchestrator coordinates multiple specialist agents:</p>
+
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    Claude Code Instance                       │
+│                                                               │
+│  ┌───────────────────────────────────────────────────┐       │
+│  │            OTTO (Orchestrator Agent)               │       │
+│  │  • Receives user task                              │       │
+│  │  • Selects persona + chamber + playbook            │       │
+│  │  • Dispatches to specialist agents                 │       │
+│  │  • Manages phase transitions                       │       │
+│  │  • Reports back to user                            │       │
+│  └──────────────┬────────────────────────────────────┘       │
+│                 │                                             │
+│    ┌────────────┼────────────┬────────────┐                  │
+│    ↓            ↓            ↓            ↓                  │
+│ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐                │
+│ │Scholar │ │Maverick│ │Analyzer│ │Guardian│                │
+│ │Agent   │ │Agent   │ │Agent   │ │Agent   │                │
+│ │(worktree│ │(worktree│ │(worktree│ │(worktree│               │
+│ │ scope) │ │ scope) │ │ scope) │ │ scope) │                │
+│ └────────┘ └────────┘ └────────┘ └────────┘                │
+│                                                               │
+│  ┌───────────────────────────────────────────────────┐       │
+│  │            Relay Agent (background)                │       │
+│  │  • Caches MCP server state                         │       │
+│  │  • Serves queries from specialist agents           │       │
+│  │  • Monitors for changes                            │       │
+│  └───────────────────────────────────────────────────┘       │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+
+<h2>Agent Lifecycle per Playbook</h2>
+<table class="wiki-table">
+<tr><th>Event</th><th>Who</th><th>What Happens</th></tr>
+<tr><td>User sends task</td><td>OTTO</td><td>Analyzes task → selects playbook template → announces persona</td></tr>
+<tr><td>Discovery phase</td><td>Scholar Agent</td><td>Runs research skills, produces design brief. Reports to OTTO.</td></tr>
+<tr><td>User approval gate</td><td>OTTO</td><td>Presents design brief. Waits for user confirmation.</td></tr>
+<tr><td>Build phase</td><td>Maverick Agent(s)</td><td>Runs implementation. May fan-out to parallel agents. Reports to OTTO.</td></tr>
+<tr><td>Verify phase</td><td>Analyzer Agent</td><td>Runs review swarm. Reports findings. If issues, loops back to Maverick for fixes.</td></tr>
+<tr><td>Ship phase</td><td>Guardian Agent</td><td>Runs deployment chain. Reports to OTTO.</td></tr>
+<tr><td>Completion</td><td>OTTO</td><td>Generates deployment report. Closes playbook. Announces completion.</td></tr>
+</table>
+
+<h2>DAG Execution (Ralphinho Integration)</h2>
+<p>For complex playbooks (10+ files), OTTO delegates to the Ralphinho RFC Pipeline as its execution engine. The flow becomes:</p>
+
+<pre><code>OTTO receives task
+  → OTTO selects Ralphinho pattern (complexity detected)
+  → Ralphinho decomposes into work units (DAG)
+  → Each work unit gets a persona-appropriate agent:
+     - Frontend units → Maverick agent
+     - Backend units → Venturer agent
+     - Test units → Specialist agent
+     - Security units → Analyzer agent
+  → Merge queue handles integration
+  → OTTO runs final verification (Analyzer swarm)
+  → OTTO manages deployment (Guardian)</code></pre>
+
+<div class="callout">
+<strong>The key innovation:</strong> OTTO provides the persona routing layer on top of Ralphinho's DAG execution. Ralphinho handles the mechanics (decomposition, dependencies, merge queue). OTTO handles the intelligence (which persona, which skills, which quality bar). Together they form the complete playbook engine.
+</div>
+</div>
+
+</main>
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

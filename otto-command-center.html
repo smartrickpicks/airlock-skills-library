@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent OTTO — Command Center</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --surface3: #22223a;
+    --border: #2a2a40;
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --accent: #6c5ce7;
+    --accent2: #a29bfe;
+    --discovery: #00b894;
+    --build: #fdcb6e;
+    --verify: #e17055;
+    --ship: #0984e3;
+    --glow: rgba(108, 92, 231, 0.3);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      linear-gradient(rgba(108,92,231,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,92,231,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 40px 0 30px;
+    position: relative;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  .otto-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent2);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-size: 48px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, var(--accent2) 50%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+  }
+
+  .header p {
+    color: var(--text-dim);
+    margin-top: 8px;
+    font-size: 15px;
+  }
+
+  /* Navigation Tabs */
+  .nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin: 30px 0;
+    background: var(--surface);
+    padding: 4px;
+    border-radius: 16px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid var(--border);
+  }
+
+  .nav-tab {
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .nav-tab:hover { color: var(--text); }
+
+  .nav-tab.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 20px var(--glow);
+  }
+
+  .nav-tab .tab-icon {
+    margin-right: 6px;
+  }
+
+  /* Panels */
+  .panel { display: none; animation: fadeIn 0.4s ease; }
+  .panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============ CHAMBERS PANEL ============ */
+  .chambers-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .chamber-node {
+    padding: 14px 28px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 140px;
+  }
+
+  .chamber-node:hover, .chamber-node.active {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+
+  .chamber-node.active[data-chamber="discovery"] { border-color: var(--discovery); box-shadow: 0 8px 30px rgba(0,184,148,0.2); }
+  .chamber-node.active[data-chamber="build"] { border-color: var(--build); box-shadow: 0 8px 30px rgba(253,203,110,0.2); }
+  .chamber-node.active[data-chamber="verify"] { border-color: var(--verify); box-shadow: 0 8px 30px rgba(225,112,85,0.2); }
+  .chamber-node.active[data-chamber="ship"] { border-color: var(--ship); box-shadow: 0 8px 30px rgba(9,132,227,0.2); }
+
+  .chamber-icon { font-size: 28px; margin-bottom: 4px; }
+  .chamber-label { font-weight: 700; font-size: 15px; }
+  .chamber-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  .flow-arrow {
+    font-size: 20px;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  .chamber-detail {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .chamber-detail.active { display: block; }
+
+  .chamber-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .chamber-detail-icon {
+    font-size: 48px;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: var(--surface2);
+  }
+
+  .chamber-detail-title { font-size: 28px; font-weight: 800; }
+  .chamber-detail-phase { color: var(--text-dim); font-size: 14px; }
+
+  .chamber-personas {
+    display: flex;
+    gap: 12px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+
+  .chamber-persona-tag {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .chamber-persona-tag.lead {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .skill-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .skill-group {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .skill-group-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--accent2);
+  }
+
+  .skill-item {
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .skill-item:last-child { border-bottom: none; }
+  .skill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* ============ PERSONAS PANEL ============ */
+  .persona-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .persona-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .persona-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+
+  .persona-card.active {
+    border-color: var(--accent);
+    background: var(--surface2);
+    box-shadow: 0 0 30px var(--glow);
+  }
+
+  .persona-card-category {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .persona-card-name {
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  .persona-card-mode {
+    font-size: 11px;
+    color: var(--accent2);
+    margin-top: 4px;
+  }
+
+  .category-analytical .persona-card-name { color: #e17055; }
+  .category-social .persona-card-name { color: #fdcb6e; }
+  .category-stabilizing .persona-card-name { color: #00b894; }
+  .category-persistent .persona-card-name { color: #0984e3; }
+
+  .persona-detail {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .persona-detail.active { display: block; }
+
+  .persona-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .persona-detail-name {
+    font-size: 36px;
+    font-weight: 900;
+  }
+
+  .persona-detail-bio {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 700px;
+    margin-bottom: 24px;
+  }
+
+  /* PI Drives visualization */
+  .drives-viz {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    min-width: 280px;
+  }
+
+  .drives-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .drive-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .drive-label {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    width: 100px;
+    color: var(--text-dim);
+  }
+
+  .drive-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .drive-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .drive-value {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    width: 36px;
+    text-align: right;
+    color: var(--text-dim);
+  }
+
+  .persona-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .persona-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .persona-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .persona-section-title.green { color: var(--discovery); }
+  .persona-section-title.red { color: var(--verify); }
+  .persona-section-title.yellow { color: var(--build); }
+  .persona-section-title.blue { color: var(--ship); }
+
+  .persona-section p, .persona-section li {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .persona-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .persona-section li {
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .persona-section li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ============ ROUTER PANEL ============ */
+  .router-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .router-input-wrap {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: border-color 0.3s ease;
+  }
+
+  .router-input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 40px var(--glow);
+  }
+
+  .router-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .router-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    resize: none;
+    min-height: 60px;
+  }
+
+  .router-input::placeholder { color: #444; }
+
+  .router-btn {
+    margin-top: 12px;
+    padding: 12px 32px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .router-btn:hover {
+    background: var(--accent2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px var(--glow);
+  }
+
+  .router-examples {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .router-example {
+    padding: 6px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .router-example:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .router-result {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .router-result.active { display: block; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-badge {
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .result-persona-name {
+    font-size: 32px;
+    font-weight: 900;
+  }
+
+  .result-chamber-tag {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .result-section {
+    margin-top: 20px;
+  }
+
+  .result-section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .result-why {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .result-skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+  }
+
+  .result-skill {
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .result-skill-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 20px;
+  }
+
+  /* ============ OVERVIEW PANEL ============ */
+  .overview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 36px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .overview-matrix {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    overflow-x: auto;
+  }
+
+  .matrix-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  tr:hover td {
+    background: var(--surface2);
+  }
+
+  .drive-indicator {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .drive-high { background: rgba(108,92,231,0.2); color: var(--accent2); }
+  .drive-mid { background: rgba(253,203,110,0.2); color: var(--build); }
+  .drive-low { background: rgba(136,136,170,0.15); color: var(--text-dim); }
+
+  .category-tag {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .cat-analytical { background: rgba(225,112,85,0.15); color: var(--verify); }
+  .cat-social { background: rgba(253,203,110,0.15); color: var(--build); }
+  .cat-stabilizing { background: rgba(0,184,148,0.15); color: var(--discovery); }
+  .cat-persistent { background: rgba(9,132,227,0.15); color: var(--ship); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header h1 { font-size: 32px; }
+    .persona-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .chambers-flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .persona-detail-header { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="otto-logo">Agent OTTO</div>
+    <h1>Command Center</h1>
+    <p>PI-Behavioral Skill Orchestrator — 17 Personas · 4 Chambers · 393 Skills</p>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPanel('overview')"><span class="tab-icon">◉</span>Overview</button>
+    <button class="nav-tab" onclick="showPanel('chambers')"><span class="tab-icon">⬡</span>Chambers</button>
+    <button class="nav-tab" onclick="showPanel('personas')"><span class="tab-icon">◈</span>Personas</button>
+    <button class="nav-tab" onclick="showPanel('router')"><span class="tab-icon">⚡</span>Task Router</button>
+  </div>
+
+  <!-- ============ OVERVIEW PANEL ============ -->
+  <div id="panel-overview" class="panel active">
+    <div class="overview-stats">
+      <div class="stat-card"><div class="stat-number">17</div><div class="stat-label">Personas</div></div>
+      <div class="stat-card"><div class="stat-number">4</div><div class="stat-label">Chambers</div></div>
+      <div class="stat-card"><div class="stat-number">393</div><div class="stat-label">Skills</div></div>
+      <div class="stat-card"><div class="stat-number">32</div><div class="stat-label">Skill Tags</div></div>
+      <div class="stat-card"><div class="stat-number">4</div><div class="stat-label">PI Drives</div></div>
+    </div>
+
+    <div class="overview-matrix">
+      <div class="matrix-title">Persona × Behavioral Drives Matrix</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Persona</th>
+            <th>Category</th>
+            <th>Dominance</th>
+            <th>Extraversion</th>
+            <th>Patience</th>
+            <th>Formality</th>
+            <th>Cognitive Mode</th>
+          </tr>
+        </thead>
+        <tbody id="matrix-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ CHAMBERS PANEL ============ -->
+  <div id="panel-chambers" class="panel">
+    <div class="chambers-flow">
+      <div class="chamber-node active" data-chamber="discovery" onclick="showChamber('discovery')">
+        <div class="chamber-icon">🔬</div>
+        <div class="chamber-label">Discovery</div>
+        <div class="chamber-sub">Research · Explore</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="chamber-node" data-chamber="build" onclick="showChamber('build')">
+        <div class="chamber-icon">⚡</div>
+        <div class="chamber-label">Build</div>
+        <div class="chamber-sub">Create · Code</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="chamber-node" data-chamber="verify" onclick="showChamber('verify')">
+        <div class="chamber-icon">🛡</div>
+        <div class="chamber-label">Verify</div>
+        <div class="chamber-sub">Review · Test</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="chamber-node" data-chamber="ship" onclick="showChamber('ship')">
+        <div class="chamber-icon">🚀</div>
+        <div class="chamber-label">Ship</div>
+        <div class="chamber-sub">Deploy · Protect</div>
+      </div>
+    </div>
+
+    <div id="chamber-discovery" class="chamber-detail active"></div>
+    <div id="chamber-build" class="chamber-detail"></div>
+    <div id="chamber-verify" class="chamber-detail"></div>
+    <div id="chamber-ship" class="chamber-detail"></div>
+  </div>
+
+  <!-- ============ PERSONAS PANEL ============ -->
+  <div id="panel-personas" class="panel">
+    <div class="persona-grid" id="persona-grid"></div>
+    <div class="persona-detail" id="persona-detail"></div>
+  </div>
+
+  <!-- ============ ROUTER PANEL ============ -->
+  <div id="panel-router" class="panel">
+    <div class="router-container">
+      <div class="router-input-wrap">
+        <div class="router-label">Describe your task</div>
+        <textarea class="router-input" id="router-input" placeholder="e.g. Build a new API endpoint with JWT authentication..."></textarea>
+        <button class="router-btn" onclick="routeTask()">Route Task →</button>
+        <div class="router-examples">
+          <span class="router-example" onclick="setExample(this)">Research auth patterns for microservices</span>
+          <span class="router-example" onclick="setExample(this)">Build a React dashboard component</span>
+          <span class="router-example" onclick="setExample(this)">Review this PR for security issues</span>
+          <span class="router-example" onclick="setExample(this)">Deploy to production with zero downtime</span>
+          <span class="router-example" onclick="setExample(this)">Design a new database schema</span>
+          <span class="router-example" onclick="setExample(this)">Create a CI/CD pipeline</span>
+        </div>
+      </div>
+      <div class="router-result" id="router-result"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const personas = [
+  { name: "Analyzer", category: "Analytical", drives: { D: "high", E: "low", C: "low", F: "high" }, mode: "Deep analytical", bio: "Disciplined, detail-oriented, and thorough. Combines proactive drive with formal precision to produce meticulous, evidence-based work.", strengths: ["Thorough analysis","Detail orientation","Quality standards","Systematic problem-solving","Data-driven decisions"], cautions: ["Analysis paralysis","Difficulty with ambiguity","May miss the forest for the trees","Can be overly critical"], antiPatterns: ["Endless research loops without shipping","Gold-plating when 'good enough' would serve","Rejecting qualitative signals"], skills: ["Database Designer","RAG Architect","Senior Data Scientist","Security Review","Snowflake MCP","BigQuery MCP","PostgreSQL MCP","Sentry MCP","Tavily Search MCP","Performance Profiler"] },
+  { name: "Controller", category: "Analytical", drives: { D: "high", E: "low", C: "low", F: "high" }, mode: "Process-enforcement", bio: "Commanding, precise, process-driven. Controllers enforce structure and standards — they see chaos as a threat and respond by building systems.", strengths: ["Process creation","Quality enforcement","Risk management","Operational discipline","Clear accountability"], cautions: ["Rigidity","Micromanagement tendency","Resistance to creative solutions"], antiPatterns: ["Over-engineering governance","Blocking progress with process gates","Confusing compliance with quality"], skills: ["QMS Audit Expert","CI/CD Pipeline Builder","Senior DevOps","ISO 27001 Manager","Terraform MCP","Kubernetes MCP","GitHub Actions MCP","Release Manager","Jira Expert","Datadog MCP"] },
+  { name: "Specialist", category: "Analytical", drives: { D: "low", E: "low", C: "mid", F: "high" }, mode: "Procedural correctness", bio: "Precise, methodical, and consistent. Specialists find the 'right way' and stick to it. The steady hands that keep quality predictable.", strengths: ["Consistent quality","Attention to detail","Reliable execution","Deep domain expertise","Thorough documentation"], cautions: ["Resistance to change","Difficulty with ambiguity","May avoid leadership"], antiPatterns: ["Following outdated procedures","Refusing to adapt","Spending too long on low-impact details"], skills: ["Senior QA Engineer","TDD Guide","Quality Documentation Manager","Context7 MCP","Playwright MCP","API Design Patterns","BrowserStack MCP","E2E Testing Patterns","Coding Standards","ReadMe MCP"] },
+  { name: "Strategist", category: "Analytical", drives: { D: "high", E: "low", C: "low", F: "high" }, mode: "Systems-level thinking", bio: "Visionary thinkers who combine big-picture systems thinking with analytical rigor. They see the whole board and think several moves ahead.", strengths: ["Long-range planning","Systems architecture","Strategic alignment","Risk anticipation","Pattern recognition"], cautions: ["Over-planning","Difficulty with execution details","May overcomplicate simple tasks"], antiPatterns: ["Architecture astronautics","Dismissing tactical concerns","Planning paralysis"], skills: ["Senior Architect","Strategic Alignment Engine","Product Strategist","BigQuery MCP","PostHog MCP","Mixpanel MCP","Technology Stack Evaluator","RAG Architect","Perplexity MCP","GitHub MCP"] },
+  { name: "Venturer", category: "Analytical", drives: { D: "high", E: "low", C: "low", F: "low" }, mode: "Rapid experimentation", bio: "Independent risk-takers who move fast and break rules. The 'just ship it' persona — perfect for greenfield, prototype, and agentic builds.", strengths: ["Speed to market","Risk tolerance","Innovation","Independence","Prototype velocity"], cautions: ["Cuts corners","Ignores process","May create technical debt","Poor documentation"], antiPatterns: ["Ignoring security for speed","Creating silos","Accruing massive tech debt"], skills: ["Loki Mode","Agent Designer","MCP Builder","Cloudflare MCP","Vercel MCP","Docker MCP","n8n MCP","Supabase MCP","Composio MCP","SaaS Scaffolder"] },
+  { name: "Altruist", category: "Social", drives: { D: "low", E: "high", C: "mid", F: "high" }, mode: "Empathic coordination", bio: "Team-first, supportive, and organized. They create the systems that help teams work better together. Natural Scrum Masters.", strengths: ["Team facilitation","Empathy","Organizational design","Change management","Documentation"], cautions: ["Difficulty with confrontation","May prioritize harmony over quality"], antiPatterns: [], skills: ["Project Manager","Documents","Product","Communication","File Storage","Design","Marketing","Testing","Planning","CRM"] },
+  { name: "Captain", category: "Social", drives: { D: "high", E: "high", C: "low", F: "low" }, mode: "Orchestration / command", bio: "Bold, decisive leaders who delegate details and drive results. Natural orchestrators of multi-agent workflows.", strengths: ["Leadership","Delegation","Vision-setting","Team motivation","Rapid decision-making"], cautions: ["May overlook details","Impatience with thoroughness","Can be domineering"], antiPatterns: ["Over-delegating critical work","Making snap decisions without data","Mistaking speed for progress"], skills: ["CEO Advisor","Strategic Alignment Engine","Board Deck Builder","GitHub MCP","Linear MCP","Salesforce MCP","PostHog MCP","Scenario War Room","Launch Strategy","Zapier MCP"] },
+  { name: "Collaborator", category: "Social", drives: { D: "low", E: "high", C: "high", F: "mid" }, mode: "Consensus-building", bio: "Harmony-seeking consensus builders who prioritize team alignment. The diplomatic bridge-builders.", strengths: ["Consensus building","Team alignment","Documentation","Diplomatic communication","Cross-team coordination"], cautions: ["Slow to decide","Conflict-averse","May water down bold ideas"], antiPatterns: [], skills: ["Project Manager","Documents","Design","Communication","File Storage","Frontend","Marketing","Testing","Planning","Product"] },
+  { name: "Maverick", category: "Social", drives: { D: "high", E: "high", C: "low", F: "low" }, mode: "Divergent creativity", bio: "Fearless innovators who ignore structure and convention. Maximum creative energy with zero process overhead. The primary persona for autonomous coding.", strengths: ["Innovation","Creative problem-solving","Rapid prototyping","Unconventional thinking","Energy"], cautions: ["Ignores constraints","Poor follow-through","Creates chaos"], antiPatterns: ["Abandoning projects at 80%","Ignoring technical debt","Confusing novelty with value"], skills: ["Loki Mode","Frontend Design","Agent Designer","Figma MCP","Replicate MCP","Blender MCP","Algorithmic Art","Web Artifacts Builder","Stagehand MCP","n8n MCP"] },
+  { name: "Persuader", category: "Social", drives: { D: "high", E: "high", C: "low", F: "low" }, mode: "Persuasive framing", bio: "Charismatic change champions who mobilize people and ideas. They sell the vision rather than building it themselves.", strengths: ["Influence","Communication","Stakeholder management","Change advocacy","Storytelling"], cautions: ["May oversell","Impatient with details","Can be manipulative"], antiPatterns: [], skills: ["Marketing","Product","Design","CRM","Media","Communication","Planning","Agent Workflow","Documents","Frontend"] },
+  { name: "Promoter", category: "Social", drives: { D: "low", E: "high", C: "high", F: "low" }, mode: "Energizing / social", bio: "Enthusiastic motivators who create energy and social connection. Cheerleaders and community builders who keep morale high.", strengths: ["Team morale","Content creation","Community building","Social media","Brand voice"], cautions: [], antiPatterns: [], skills: ["Marketing","Design","Media","Communication","Documents","Frontend","Project Mgmt","Planning","CRM","AI/ML"] },
+  { name: "Adapter", category: "Stabilizing", drives: { D: "mid", E: "mid", C: "mid", F: "mid" }, mode: "Context-adaptive", bio: "The ultimate chameleon — balanced drives mean Adapters flex to match any context. Cross-functional mediators.", strengths: ["Versatility","Mediation","Cross-functional translation","Gap-filling","Diplomatic flexibility"], cautions: ["May lack strong identity","Difficulty with strong stances"], antiPatterns: [], skills: ["Project Mgmt","Product","Planning","Documents","Communication","Automation","Frontend","Design","Marketing","Testing"] },
+  { name: "Artisan", category: "Stabilizing", drives: { D: "low", E: "low", C: "high", F: "high" }, mode: "Craftsman precision", bio: "Precise, careful craftspeople who take pride in doing things correctly. The persona for careful code craftsmanship.", strengths: ["Code quality","Attention to detail","Consistent standards","Thorough documentation","Careful testing"], cautions: [], antiPatterns: [], skills: ["Testing","Documents","Compliance","Architecture","Code Review","Database","Backend","Security","Data/ML","Debugging"] },
+  { name: "Guardian", category: "Stabilizing", drives: { D: "low", E: "low", C: "high", F: "high" }, mode: "Protective / defensive", bio: "Rule-following stability anchors who protect standards and prevent regressions. The primary persona for merge protection and CLI agent safety.", strengths: ["Risk prevention","Standards enforcement","Compliance","Security awareness","Stability maintenance"], cautions: ["Overly cautious","Blocks innovation","Can be inflexible"], antiPatterns: [], skills: ["QMS Audit Expert","FDA Consultant","GDPR Expert","Snyk MCP","Semgrep MCP","Vault MCP","OWASP ZAP MCP","ISO 27001 Manager","Risk Mgmt Specialist","Checkly MCP"] },
+  { name: "Operator", category: "Stabilizing", drives: { D: "low", E: "low", C: "high", F: "high" }, mode: "Operational reliability", bio: "Patient process excellence — Operators keep the trains running on time. The persona for DevOps, infrastructure, and deployment.", strengths: ["Operational reliability","Infrastructure management","Runbook creation","Monitoring","Incident response"], cautions: [], antiPatterns: [], skills: ["Senior DevOps","CI/CD Pipeline Builder","Runbook Generator","AWS MCP","Docker MCP","Kubernetes MCP","Datadog MCP","Grafana MCP","Incident Commander","GitHub Actions MCP"] },
+  { name: "Individualist", category: "Persistent", drives: { D: "high", E: "low", C: "high", F: "mid" }, mode: "Independent deep-work", bio: "Independent, evidence-driven nonconformists who work best alone. Strong convictions, don't need social validation.", strengths: ["Deep technical expertise","Independent problem-solving","Original thinking","Persistence"], cautions: [], antiPatterns: [], skills: ["Architecture","Backend","Data/ML","Debugging","Database","Agent Workflow","Security","Testing","Code Review","AI/ML"] },
+  { name: "Scholar", category: "Persistent", drives: { D: "high", E: "low", C: "high", F: "high" }, mode: "Deep research", bio: "Quietly brilliant deep experts who build expertise through rigorous, independent research. The primary persona for deep research and discovery.", strengths: ["Research depth","Evidence quality","Knowledge synthesis","Methodological rigor","Independent investigation"], cautions: ["Slow output","Over-researches","Can be perfectionistic"], antiPatterns: [], skills: ["Senior Data Scientist","Senior ML Engineer","Snowflake MCP","Databricks MCP","Pinecone MCP","HuggingFace MCP","Exa Search MCP","Context7 MCP","Obsidian MCP","Scientific Skills"] },
+];
+
+const chambers = {
+  discovery: {
+    icon: "🔬", name: "Discovery", phase: "Research · Explore · Understand", color: "var(--discovery)",
+    lead: "Scholar", supporting: ["Strategist", "Individualist", "Analyzer"], total: 18,
+    groups: [
+      { title: "Deep Research (Scholar lead)", skills: ["Senior Data Scientist","Senior ML Engineer","Exa Search MCP","Context7 MCP","Obsidian MCP","Tavily Search MCP","Perplexity MCP","Scientific Skills"] },
+      { title: "Systems Mapping (Strategist)", skills: ["Senior Architect","Strategic Alignment Engine","Technology Stack Evaluator","RAG Architect"] },
+      { title: "Independent Analysis (Individualist)", skills: ["PostgreSQL MCP","Python Development Patterns","Performance Profiler"] },
+      { title: "Precision Data (Analyzer)", skills: ["Database Designer","Security Review","BigQuery MCP"] }
+    ]
+  },
+  build: {
+    icon: "⚡", name: "Build", phase: "Create · Code · Innovate", color: "var(--build)",
+    lead: "Maverick", supporting: ["Venturer", "Captain", "Persuader"], total: 24,
+    groups: [
+      { title: "Fearless Innovation (Maverick lead)", skills: ["Loki Mode","Frontend Design","Agent Designer","Figma MCP","Web Artifacts Builder","Algorithmic Art","Stagehand MCP","n8n MCP"] },
+      { title: "Greenfield Infra (Venturer)", skills: ["MCP Builder","Cloudflare MCP","Vercel MCP","Docker MCP","Supabase MCP","SaaS Scaffolder","Composio MCP"] },
+      { title: "Orchestration (Captain)", skills: ["CEO Advisor","Board Deck Builder","GitHub MCP","Linear MCP","Scenario War Room","Launch Strategy"] },
+      { title: "Momentum (Persuader)", skills: ["Cold Email Outreach","Copywriting"] }
+    ]
+  },
+  verify: {
+    icon: "🛡", name: "Verify", phase: "Review · Test · Harden", color: "var(--verify)",
+    lead: "Analyzer", supporting: ["Controller", "Specialist", "Artisan"], total: 25,
+    groups: [
+      { title: "Analyzer Swarm — Code Review (10+)", skills: ["Security Review","Database Designer","RAG Architect","Senior Data Scientist","Sentry MCP","Tavily Search MCP","Performance Profiler","Snowflake MCP","BigQuery MCP","PostgreSQL MCP"] },
+      { title: "Process Compliance (Controller)", skills: ["QMS Audit Expert","CI/CD Pipeline Builder","Senior DevOps","ISO 27001 Manager","GitHub Actions MCP","Release Manager"] },
+      { title: "Correctness Validation (Specialist)", skills: ["Senior QA Engineer","TDD Guide","Playwright MCP","API Design Patterns","BrowserStack MCP","E2E Testing Patterns","Coding Standards"] },
+      { title: "Craftsmanship (Artisan)", skills: ["Quality Documentation Manager","Database Schema Designer"] }
+    ]
+  },
+  ship: {
+    icon: "🚀", name: "Ship", phase: "Deploy · Protect · Monitor", color: "var(--ship)",
+    lead: "Guardian", supporting: ["Operator", "Controller", "Adapter"], total: 27,
+    groups: [
+      { title: "Constellation Protection (Guardian lead)", skills: ["QMS Audit Expert","FDA Consultant","GDPR Expert","Snyk MCP","Semgrep MCP","Vault MCP","OWASP ZAP MCP","ISO 27001 Manager","Risk Mgmt Specialist","Checkly MCP"] },
+      { title: "Deployment Infra (Operator)", skills: ["Senior DevOps","CI/CD Pipeline Builder","Runbook Generator","AWS MCP","Docker MCP","Kubernetes MCP","Datadog MCP","Grafana MCP","Incident Commander","GitHub Actions MCP"] },
+      { title: "Release Gates (Controller)", skills: ["Release Manager","Terraform MCP","Atlassian Jira Expert"] },
+      { title: "Cross-Team Handoff (Adapter)", skills: ["Chief of Staff","Product Manager Toolkit","Zapier MCP","Slack MCP"] }
+    ]
+  }
+};
+
+// ============ ROUTING KEYWORDS ============
+const routingRules = [
+  { keywords: ["research","explore","understand","compare","evaluate","analyze existing","what are the options","help me understand","investigate","study","learn about","deep dive"], chamber: "discovery", persona: "Scholar", why: "This task requires deep, evidence-based investigation before taking action. Scholar mode activates methodical research with maximum information density." },
+  { keywords: ["architecture","system design","long-range","strategic","evaluate stack","plan the","roadmap","design system","high-level design"], chamber: "discovery", persona: "Strategist", why: "This task demands systems-level thinking and architectural planning. Strategist mode engages framework-based reasoning and long-horizon planning." },
+  { keywords: ["build","create","implement","code","prototype","scaffold","new feature","write a","make a","develop","brainstorm","innovate","hack","component","react","frontend","ui","dashboard"], chamber: "build", persona: "Maverick", why: "This is a creation task that benefits from fearless innovation and rapid iteration. Maverick mode activates divergent creativity with explosive pace." },
+  { keywords: ["deploy","infrastructure","devops","docker","kubernetes","aws","cloud","pipeline","ci/cd","terraform","server","container"], chamber: "build", persona: "Venturer", why: "This infrastructure task needs fast, independent execution with risk tolerance. Venturer mode activates rapid experimentation with minimal process overhead." },
+  { keywords: ["plan","orchestrate","coordinate","delegate","lead","manage project","organize","prioritize","roadmap"], chamber: "build", persona: "Captain", why: "This task needs orchestration and decisive leadership. Captain mode activates delegative command with vision-first communication." },
+  { keywords: ["review","audit","test","security","check","validate","verify","qa","quality","code review","pr review","vulnerability","bug","lint"], chamber: "verify", persona: "Analyzer", why: "This is a validation task requiring precision and thoroughness. Analyzer mode activates the review swarm — deep analytical processing with evidence-first output." },
+  { keywords: ["compliance","process","standards","iso","soc","governance","regulation","policy"], chamber: "verify", persona: "Controller", why: "This compliance task needs rigorous process enforcement. Controller mode activates rule-based, procedural processing with maximum accountability." },
+  { keywords: ["ship","deploy to production","release","merge","monitor","protect","rollback","production","go live","launch"], chamber: "ship", persona: "Guardian", why: "This is a ship/protect task where stability is paramount. Guardian mode activates defensive, risk-aware processing with precedent-citing rigor." },
+  { keywords: ["document","write docs","documentation","readme","spec","proposal"], chamber: "verify", persona: "Artisan", why: "This documentation task needs craftsman-level precision. Artisan mode activates methodical, detailed processing focused on quality and correctness." },
+  { keywords: ["marketing","outreach","pitch","sell","persuade","stakeholder","presentation","demo"], chamber: "build", persona: "Persuader", why: "This communication task needs persuasive framing. Persuader mode activates story-driven, benefit-focused messaging with charismatic energy." },
+];
+
+// ============ FUNCTIONS ============
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function showChamber(id) {
+  document.querySelectorAll('.chamber-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.chamber-detail').forEach(d => d.classList.remove('active'));
+  document.querySelector(`.chamber-node[data-chamber="${id}"]`).classList.add('active');
+  document.getElementById('chamber-' + id).classList.add('active');
+  renderChamber(id);
+}
+
+function renderChamber(id) {
+  const c = chambers[id];
+  const el = document.getElementById('chamber-' + id);
+  el.innerHTML = `
+    <div class="chamber-detail-header">
+      <div class="chamber-detail-icon">${c.icon}</div>
+      <div>
+        <div class="chamber-detail-title">${c.name} Chamber</div>
+        <div class="chamber-detail-phase">${c.phase} — ${c.total} skills loaded</div>
+      </div>
+    </div>
+    <div class="chamber-personas">
+      <div class="chamber-persona-tag lead">${c.lead} (Lead)</div>
+      ${c.supporting.map(s => `<div class="chamber-persona-tag">${s}</div>`).join('')}
+    </div>
+    <div class="skill-groups">
+      ${c.groups.map(g => `
+        <div class="skill-group">
+          <div class="skill-group-title">${g.title}</div>
+          ${g.skills.map(s => `<div class="skill-item"><span class="skill-dot"></span>${s}</div>`).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `;
+  el.classList.add('active');
+}
+
+function renderPersonaGrid() {
+  const grid = document.getElementById('persona-grid');
+  grid.innerHTML = personas.map((p, i) => `
+    <div class="persona-card category-${p.category.toLowerCase()}" onclick="showPersona(${i})">
+      <div class="persona-card-category">${p.category}</div>
+      <div class="persona-card-name">${p.name}</div>
+      <div class="persona-card-mode">${p.mode}</div>
+    </div>
+  `).join('');
+}
+
+function showPersona(index) {
+  const p = personas[index];
+  document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.persona-card')[index].classList.add('active');
+
+  const driveColors = { high: '#6c5ce7', mid: '#fdcb6e', low: '#555' };
+  const driveWidths = { high: 90, mid: 55, low: 25 };
+  const driveLabels = { D: 'Dominance', E: 'Extraversion', C: 'Patience', F: 'Formality' };
+
+  const detail = document.getElementById('persona-detail');
+  detail.innerHTML = `
+    <div class="persona-detail-header">
+      <div>
+        <div class="persona-card-category" style="margin-bottom:4px">${p.category}</div>
+        <div class="persona-detail-name">${p.name}</div>
+      </div>
+      <div class="drives-viz">
+        <div class="drives-title">PI Behavioral Drives</div>
+        ${Object.entries(p.drives).map(([k, v]) => `
+          <div class="drive-row">
+            <div class="drive-label">${driveLabels[k]}</div>
+            <div class="drive-bar-bg"><div class="drive-bar" style="width:${driveWidths[v]}%;background:${driveColors[v]}"></div></div>
+            <div class="drive-value">${v}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="persona-detail-bio">${p.bio}</div>
+    <div class="persona-sections">
+      <div class="persona-section">
+        <div class="persona-section-title green">Strengths</div>
+        <ul>${p.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+      </div>
+      ${p.cautions.length ? `<div class="persona-section">
+        <div class="persona-section-title yellow">Cautions</div>
+        <ul>${p.cautions.map(s => `<li>${s}</li>`).join('')}</ul>
+      </div>` : ''}
+      ${p.antiPatterns.length ? `<div class="persona-section">
+        <div class="persona-section-title red">Anti-Patterns</div>
+        <ul>${p.antiPatterns.map(s => `<li>${s}</li>`).join('')}</ul>
+      </div>` : ''}
+      <div class="persona-section">
+        <div class="persona-section-title blue">Top 10 Skills</div>
+        <ul>${p.skills.map((s, i) => `<li><strong style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">${String(i+1).padStart(2,'0')}</strong> ${s}</li>`).join('')}</ul>
+      </div>
+    </div>
+  `;
+  detail.classList.add('active');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderMatrix() {
+  const body = document.getElementById('matrix-body');
+  const catClass = { Analytical: 'cat-analytical', Social: 'cat-social', Stabilizing: 'cat-stabilizing', Persistent: 'cat-persistent' };
+  body.innerHTML = personas.map(p => `
+    <tr>
+      <td><strong>${p.name}</strong></td>
+      <td><span class="category-tag ${catClass[p.category]}">${p.category}</span></td>
+      <td><span class="drive-indicator drive-${p.drives.D}">${p.drives.D}</span></td>
+      <td><span class="drive-indicator drive-${p.drives.E}">${p.drives.E}</span></td>
+      <td><span class="drive-indicator drive-${p.drives.C}">${p.drives.C}</span></td>
+      <td><span class="drive-indicator drive-${p.drives.F}">${p.drives.F}</span></td>
+      <td style="color:var(--text-dim);font-size:12px">${p.mode}</td>
+    </tr>
+  `).join('');
+}
+
+function setExample(el) {
+  document.getElementById('router-input').value = el.textContent;
+  routeTask();
+}
+
+function routeTask() {
+  const input = document.getElementById('router-input').value.toLowerCase().trim();
+  if (!input) return;
+
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const rule of routingRules) {
+    let score = 0;
+    for (const kw of rule.keywords) {
+      if (input.includes(kw)) score += kw.split(' ').length;
+    }
+    if (score > bestScore) { bestScore = score; bestMatch = rule; }
+  }
+
+  if (!bestMatch) {
+    bestMatch = { chamber: "build", persona: "Maverick", why: "No strong keyword match — defaulting to Maverick in Build chamber for maximum creative flexibility. Maverick can adapt to most creation tasks." };
+  }
+
+  const c = chambers[bestMatch.chamber];
+  const p = personas.find(x => x.name === bestMatch.persona);
+  const chamberColors = { discovery: 'var(--discovery)', build: 'var(--build)', verify: 'var(--verify)', ship: 'var(--ship)' };
+  const color = chamberColors[bestMatch.chamber];
+
+  const result = document.getElementById('router-result');
+  result.innerHTML = `
+    <div class="result-header">
+      <span style="font-size:40px">${c.icon}</span>
+      <div>
+        <div class="result-persona-name" style="color:${color}">${bestMatch.persona}</div>
+        <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+          <span class="result-chamber-tag" style="background:${color};color:#000">${c.name} Chamber</span>
+          <span class="result-chamber-tag" style="border:1px solid var(--border);color:var(--text-dim)">${p ? p.category : ''} archetype</span>
+          <span class="result-chamber-tag" style="border:1px solid var(--border);color:var(--text-dim)">${p ? p.mode : ''}</span>
+        </div>
+      </div>
+    </div>
+    <div class="result-section">
+      <div class="result-section-title">Why this routing</div>
+      <div class="result-why">${bestMatch.why}</div>
+    </div>
+    <div class="result-section">
+      <div class="result-section-title">Recommended Skills (${c.total} in chamber)</div>
+      <div class="result-skills-grid">
+        ${(p ? p.skills : []).map((s, i) => `
+          <div class="result-skill">
+            <span class="result-skill-rank">#${i+1}</span>
+            ${s}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="result-section" style="margin-top:20px">
+      <div class="result-section-title">Chamber Skill Groups</div>
+      <div class="skill-groups">
+        ${c.groups.map(g => `
+          <div class="skill-group">
+            <div class="skill-group-title">${g.title}</div>
+            ${g.skills.map(s => `<div class="skill-item"><span class="skill-dot" style="background:${color}"></span>${s}</div>`).join('')}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  result.classList.add('active');
+}
+
+// ============ INIT ============
+renderPersonaGrid();
+renderMatrix();
+renderChamber('discovery');
+
+// Handle Enter key in router
+document.getElementById('router-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); routeTask(); }
+});
+</script>
+</body>
+</html>

@@ -90,6 +90,22 @@ Example for "Build a new API endpoint with auth":
 - Verify (Analyzer): Security review, test coverage, code review swarm
 - Ship (Guardian): CI/CD pipeline, merge protection, monitoring setup
 
+## Playbook Mode
+
+For multi-phase tasks, OTTO should check `references/playbooks.md` for canonical playbook templates. If the user's task matches a playbook trigger pattern, load the full playbook — persona per phase, execution pattern, skill chain, and acceptance criteria.
+
+**Playbook selection:** Match the user's task description against playbook triggers. If a match is found, announce the playbook and walk the user through each phase.
+
+**Execution pattern auto-selection:** Based on task complexity:
+- 1-3 files, single domain → Linear Pipeline (executing-plans)
+- 4-10 files, 2+ domains → Fan-Out / Fan-In (dispatching-parallel-agents)
+- 10+ files with dependencies → Ralphinho DAG (ralphinho-rfc-pipeline)
+- Multi-day / continuous → PR Loop (continuous-claude-pr-loop)
+
+**Skill taxonomy types:** Every skill is one of: `atomic` (single action), `chain` (sequential steps), `loop` (iterative refinement), `orchestrator` (routes to other skills), `utility` (global helper). Orchestrators call loops/chains. Loops call chains/atomics. Chains call atomics. Utilities are available everywhere.
+
+Available playbook templates: Landing Page, REST API with Auth, Code Review/PR Audit, Research/Deep Dive, Dashboard/Data UI.
+
 ## Auto-Suggest Mode
 
 When the user describes a task without specifying a mode, OTTO should proactively suggest:
@@ -97,7 +113,8 @@ When the user describes a task without specifying a mode, OTTO should proactivel
 1. The recommended **workflow phase/chamber**
 2. The best-fit **persona** with a brief "why"
 3. The top **5-10 skills** for this specific task
-4. A confidence note — if the task is ambiguous, say so and offer alternatives
+4. A **playbook match** if one exists in `references/playbooks.md`
+5. A confidence note — if the task is ambiguous, say so and offer alternatives
 
 Keep suggestions concise. The user can always ask for more detail or override your recommendation.
 
