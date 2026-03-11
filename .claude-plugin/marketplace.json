@@ -1,0 +1,27 @@
+{
+  "name": "airlock-skills",
+  "owner": {
+    "name": "Airlock",
+    "email": "hello@airlock.so"
+  },
+  "metadata": {
+    "description": "Agent OTTO and the Airlock skills library — PI-behavioral skill orchestration with 81 bundled community skills, chat presence, and hard-gated workflow chambers.",
+    "version": "2.0.0"
+  },
+  "plugins": [
+    {
+      "name": "agent-otto-alpha",
+      "source": "./plugins/agent-otto-alpha",
+      "description": "Agent OTTO — PI-behavioral skill orchestrator with 81 bundled community skills. Routes 17 personas across Discovery → Build → Verify → Ship with real SKILL.md invocation, chat presence, and hard gates.",
+      "version": "2.0.0",
+      "author": {
+        "name": "Airlock"
+      },
+      "homepage": "https://airlock.so",
+      "repository": "https://github.com/smartrickpicks/airlock-skills-library",
+      "keywords": ["otto", "predictive-index", "personas", "orchestrator", "chambers", "skills", "workflow"],
+      "category": "productivity",
+      "tags": ["ai-agent", "skill-orchestration", "workflow-automation", "multi-persona"]
+    }
+  ]
+}

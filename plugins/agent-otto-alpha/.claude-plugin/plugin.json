@@ -1,0 +1,10 @@
+{
+  "name": "agent-otto-alpha",
+  "version": "2.0.0",
+  "description": "Agent OTTO — PI-behavioral skill orchestrator with 81 bundled community skills, real SKILL.md invocation, chat presence system, and hard-gated workflow chambers. Routes 17 personas across Discovery → Build → Verify → Ship with actual skill instruction-following.",
+  "author": {
+    "name": "Airlock"
+  },
+  "homepage": "https://airlock.so",
+  "keywords": ["otto", "predictive-index", "personas", "orchestrator", "chambers", "skills", "playbooks", "workflow", "community-skills", "skill-invocation"]
+}
